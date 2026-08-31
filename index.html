@@ -1,0 +1,1275 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MADA | منصة مستلزمات طب الأسنان</title>
+  
+  <!-- خط Cairo + Font Awesome CDN -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  
+  <!-- Swiper CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+  
+  <style>
+    :root {
+      --bg-gradient: linear-gradient(180deg, #d3f3ee 0%, #eef9f7 35%, #f7fcfb 100%);
+      --surface-white: #ffffff;
+      --surface-card: #ffffff;
+      --surface-icon: #e2f5f2;
+      --primary: #108782;
+      --primary-dark: #0c6763;
+      --text-main: #123835;
+      --text-muted: #6f9591;
+      --accent-orange: #ff6e40;
+      --accent-orange-hover: #f35826;
+      --border-subtle: rgba(16, 135, 130, 0.08);
+      --shadow-soft: 0 4px 16px rgba(16, 135, 130, 0.06);
+      --shadow-hover: 0 10px 24px rgba(16, 135, 130, 0.14);
+      --radius-card: 20px;
+      
+      /* ألوان الفوتر الداكن */
+      --footer-bg: #0b1a1c;
+      --footer-text: #94b2b0;
+      --footer-heading: #ffffff;
+      --footer-border: rgba(255, 255, 255, 0.08);
+    }
+
+    /* ألوان الوضع الليلي (Dark Mode) */
+    body.dark-mode {
+      --bg-gradient: linear-gradient(180deg, #0a1719 0%, #102124 35%, #13272b 100%);
+      --surface-white: #172a2e;
+      --surface-card: #193035;
+      --surface-icon: #234349;
+      --primary: #25d6cc;
+      --primary-dark: #1cb5ac;
+      --text-main: #e8f7f6;
+      --text-muted: #8caeab;
+      --border-subtle: rgba(255, 255, 255, 0.05);
+      --shadow-soft: 0 4px 16px rgba(0, 0, 0, 0.25);
+      --shadow-hover: 0 10px 24px rgba(0, 0, 0, 0.35);
+      
+      --footer-bg: #060e10;
+      --footer-text: #7a9c9a;
+      --footer-border: rgba(255, 255, 255, 0.05);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Cairo', sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background: var(--bg-gradient);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      transition: background 0.3s ease, color 0.3s ease;
+    }
+
+    html[dir="ltr"] .arrow-icon {
+      transform: scaleX(-1);
+    }
+
+    .site-container {
+      width: 100%;
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 0 clamp(16px, 3vw, 40px);
+    }
+
+    /* الهيدر العلوي */
+    .site-header {
+      width: 100%;
+      background: var(--surface-white);
+      border-bottom: 1px solid var(--border-subtle);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: var(--shadow-soft);
+      transition: background 0.3s ease, border-color 0.3s ease;
+    }
+
+    .header-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-top: 14px;
+      padding-bottom: 14px;
+      gap: 20px;
+    }
+
+    /* الشعار */
+    .brand-identity {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      cursor: pointer;
+    }
+
+    .brand-logo-icon {
+      background: var(--primary);
+      color: #ffffff;
+      width: 46px;
+      height: 46px;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      box-shadow: 0 4px 12px rgba(16, 135, 130, 0.2);
+    }
+
+    body.dark-mode .brand-logo-icon {
+      color: #0d1b1d;
+    }
+
+    .brand-name {
+      font-size: 24px;
+      font-weight: 800;
+      color: var(--primary);
+      line-height: 1.1;
+      display: block;
+    }
+
+    .brand-tagline {
+      font-size: 11px;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    /* أزرار التنقل العلوية */
+    .main-navigation {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .nav-tab-btn {
+      background: transparent;
+      border: none;
+      outline: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 9px 20px;
+      border-radius: 14px;
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text-muted);
+      transition: all 0.2s ease;
+    }
+
+    .nav-tab-btn:hover {
+      background: var(--surface-icon);
+      color: var(--primary);
+    }
+
+    .nav-tab-btn.active {
+      background: var(--primary);
+      color: #ffffff;
+      box-shadow: 0 4px 12px rgba(16, 135, 130, 0.25);
+    }
+
+    body.dark-mode .nav-tab-btn.active {
+      color: #0d1b1d;
+    }
+
+    .icon-with-badge {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .cart-badge {
+      position: absolute;
+      top: -7px;
+      left: -8px;
+      background: var(--accent-orange);
+      color: #ffffff;
+      font-size: 10px;
+      font-weight: 800;
+      width: 17px;
+      height: 17px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    html[dir="ltr"] .cart-badge {
+      left: auto;
+      right: -8px;
+    }
+
+    /* أزرار الإجراءات */
+    .control-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .btn-action {
+      background: var(--surface-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 12px;
+      width: 44px;
+      height: 44px;
+      color: var(--primary);
+      font-weight: 700;
+      font-size: 15px;
+      cursor: pointer;
+      box-shadow: var(--shadow-soft);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.15s ease, background 0.2s, border-color 0.2s;
+    }
+
+    .btn-action:hover {
+      transform: translateY(-2px);
+      border-color: var(--primary);
+    }
+
+    .btn-action.whatsapp {
+      color: #25d366;
+      font-size: 20px;
+    }
+
+    /* المحتوى الرئيسي */
+    .main-wrapper {
+      flex: 1;
+      padding-top: 32px;
+      padding-bottom: 60px;
+    }
+
+    .view-panel {
+      display: none;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .view-panel.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* شريط البحث */
+    .search-hero-bar {
+      width: 100%;
+      margin-bottom: 28px;
+    }
+
+    .search-field {
+      width: 100%;
+      background: var(--surface-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 18px;
+      height: 56px;
+      display: flex;
+      align-items: center;
+      padding: 0 22px;
+      box-shadow: var(--shadow-soft);
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .search-field:focus-within {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(16, 135, 130, 0.14);
+    }
+
+    .search-field input {
+      flex: 1;
+      border: none;
+      outline: none;
+      background: transparent;
+      font-size: 15px;
+      color: var(--text-main);
+      padding: 0 10px;
+    }
+
+    .search-field i {
+      color: var(--text-muted);
+      font-size: 19px;
+    }
+
+    /* بانر العروض الكبير (تلقائي) */
+    .hero-slider-section {
+      width: 100%;
+      margin-bottom: 36px;
+      position: relative;
+    }
+
+    .swiper-hero {
+      width: 100%;
+      border-radius: 26px;
+      overflow: hidden;
+      padding: 0 !important;
+      box-shadow: 0 12px 28px rgba(16, 135, 130, 0.22);
+    }
+
+    .swiper-hero .swiper-wrapper {
+      width: 100%;
+      height: 100%;
+    }
+
+    .swiper-hero .swiper-slide {
+      width: 100%;
+      height: auto;
+      margin: 0;
+      padding: 0;
+      display: block;
+      border-radius: 0;
+      background: transparent;
+    }
+
+    .promo-banner {
+      width: 100%;
+      height: 100%;
+      min-height: 230px;
+      padding: 44px 50px;
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-sizing: border-box;
+      user-select: none;
+      border-radius: 26px;
+    }
+
+    .banner-theme-1 {
+      background: linear-gradient(135deg, #108782 0%, #1cbab1 100%);
+    }
+
+    .banner-theme-2 {
+      background: linear-gradient(135deg, #0b6b75 0%, #17a2b8 100%);
+    }
+
+    .banner-theme-3 {
+      background: linear-gradient(135deg, #147a6d 0%, #20c997 100%);
+    }
+
+    .banner-badge-box {
+      background: rgba(255, 255, 255, 0.2);
+      width: 110px;
+      height: 100px;
+      border-radius: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 46px;
+      flex-shrink: 0;
+    }
+
+    .banner-details {
+      text-align: left;
+    }
+
+    html[dir="ltr"] .banner-details {
+      text-align: right;
+    }
+
+    .banner-details h2 {
+      font-size: 28px;
+      font-weight: 800;
+      margin-bottom: 6px;
+    }
+
+    .banner-details p {
+      font-size: 16px;
+      opacity: 0.95;
+      margin-bottom: 18px;
+    }
+
+    .btn-cta {
+      background: var(--accent-orange);
+      color: #ffffff;
+      border: none;
+      padding: 10px 28px;
+      border-radius: 14px;
+      font-weight: 700;
+      font-size: 15px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 4px 14px rgba(255, 110, 64, 0.35);
+      transition: background 0.2s, transform 0.15s;
+    }
+
+    .btn-cta:hover {
+      background: var(--accent-orange-hover);
+      transform: translateY(-2px);
+    }
+
+    .hero-pagination {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 8px;
+      margin-top: 14px;
+    }
+
+    .hero-pagination .swiper-pagination-bullet {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #a9dad4;
+      opacity: 1;
+      margin: 0 !important;
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+
+    body.dark-mode .hero-pagination .swiper-pagination-bullet {
+      background: #2b4b4f;
+    }
+
+    .hero-pagination .swiper-pagination-bullet-active {
+      width: 28px;
+      border-radius: 6px;
+      background: var(--primary) !important;
+    }
+
+    /* أقسام وسلايدر البطاقات */
+    .catalog-block {
+      margin-bottom: 40px;
+    }
+
+    .block-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .block-title {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .title-accent-bar {
+      width: 5px;
+      height: 24px;
+      border-radius: 4px;
+      background: var(--primary);
+    }
+
+    .block-title h3 {
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--text-main);
+    }
+
+    .link-view-all {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: color 0.2s;
+    }
+
+    .link-view-all:hover {
+      color: var(--primary);
+    }
+
+    .swiper-companies, .swiper-categories {
+      width: 100%;
+      padding: 10px 4px 24px 4px !important;
+      overflow: hidden;
+      cursor: grab;
+    }
+
+    .swiper-companies:active, .swiper-categories:active {
+      cursor: grabbing;
+    }
+
+    .swiper-companies .swiper-slide, .swiper-categories .swiper-slide {
+      height: auto;
+      display: flex;
+      justify-content: center;
+    }
+
+    .entity-card {
+      width: 100%;
+      background: var(--surface-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-card);
+      padding: 26px 14px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      box-shadow: var(--shadow-soft);
+      cursor: pointer;
+      user-select: none;
+      transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+    }
+
+    .entity-card:hover {
+      transform: translateY(-6px);
+      box-shadow: var(--shadow-hover);
+      border-color: var(--primary);
+    }
+
+    .entity-icon {
+      background: var(--surface-icon);
+      color: var(--primary);
+      width: 65px;
+      height: 65px;
+      border-radius: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 26px;
+    }
+
+    .entity-label {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-main);
+      text-align: center;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 100%;
+    }
+
+    /* صفحة التبويب المخصصة */
+    .generic-tab-view {
+      padding: 80px 0;
+      display: flex;
+      justify-content: center;
+    }
+
+    .generic-display-card {
+      background: var(--surface-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-card);
+      padding: 60px 40px;
+      text-align: center;
+      max-width: 520px;
+      width: 100%;
+      box-shadow: var(--shadow-soft);
+      margin: 0 auto;
+    }
+
+    .generic-icon-circle {
+      width: 110px;
+      height: 110px;
+      background: var(--surface-icon);
+      color: var(--primary);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 50px;
+      margin: 0 auto 24px;
+    }
+
+    .generic-display-card h2 {
+      font-size: 26px;
+      font-weight: 800;
+      margin-bottom: 8px;
+    }
+
+    .generic-subtitle {
+      color: var(--text-muted);
+      font-size: 15px;
+    }
+
+    /* =======================================================
+       الفوتر الغامق الاحترافي (Dark Footer)
+       ======================================================= */
+    .site-footer {
+      background-color: var(--footer-bg);
+      color: var(--footer-text);
+      width: 100%;
+      border-top: 1px solid var(--footer-border);
+      margin-top: auto;
+      padding: 38px 0 28px 0;
+      transition: background-color 0.3s ease;
+    }
+
+    .footer-inner {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+
+    /* الجانب الأيمن (الهوية والحقوق) */
+    .footer-brand-side {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .footer-logo {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--footer-heading);
+    }
+
+    .footer-logo i {
+      color: var(--primary);
+    }
+
+    .footer-trade-mark {
+      font-size: 11px;
+      color: var(--primary);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .footer-copyright {
+      font-size: 13px;
+      color: var(--footer-text);
+    }
+
+    /* الجانب المقابل (Made by shortcut) */
+    .footer-shortcut-side {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--footer-border);
+      padding: 8px 18px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--footer-heading);
+      letter-spacing: 0.5px;
+      transition: border-color 0.2s, transform 0.2s;
+    }
+
+    .footer-shortcut-side:hover {
+      border-color: var(--primary);
+      transform: translateY(-2px);
+    }
+
+    .footer-shortcut-side .brand-creator {
+      color: var(--primary);
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+
+    .footer-shortcut-side i {
+      color: var(--accent-orange);
+      font-size: 14px;
+    }
+
+    /* التجاوب مع الهواتف */
+    @media (max-width: 768px) {
+      .header-inner {
+        flex-wrap: wrap;
+      }
+      .main-navigation {
+        order: 3;
+        width: 100%;
+        justify-content: space-around;
+        padding-top: 10px;
+        border-top: 1px solid var(--border-subtle);
+        gap: 6px;
+      }
+      .nav-tab-btn {
+        padding: 8px 12px;
+        font-size: 13px;
+      }
+      .promo-banner {
+        flex-direction: column;
+        text-align: center;
+        padding: 28px 20px;
+        gap: 16px;
+      }
+      .banner-details {
+        text-align: center !important;
+      }
+      .footer-inner {
+        flex-direction: column;
+        text-align: center;
+        gap: 16px;
+      }
+      .footer-logo {
+        justify-content: center;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- الهيدر وشريط التنقل العلوي -->
+  <header class="site-header">
+    <div class="site-container header-inner">
+      
+      <!-- شعار الموقع والهوية -->
+      <div class="brand-identity" id="brandLogo">
+        <div class="brand-logo-icon">
+          <i class="fa-solid fa-tooth"></i>
+        </div>
+        <div class="brand-meta">
+          <span class="brand-name">MADA</span>
+          <span class="brand-tagline" data-i18n="tagline">مستلزمات طب الأسنان</span>
+        </div>
+      </div>
+
+      <!-- أزرار التنقل الرئيسية العلوية -->
+      <nav class="main-navigation">
+        <button type="button" class="nav-tab-btn active" data-tab="home" data-title-key="home" data-icon="fa-house">
+          <i class="fa-solid fa-house"></i>
+          <span data-i18n="navHome">الرئيسية</span>
+        </button>
+
+        <button type="button" class="nav-tab-btn" data-tab="offers" data-title-key="offers" data-icon="fa-tags">
+          <i class="fa-solid fa-tags"></i>
+          <span data-i18n="navOffers">العروض</span>
+        </button>
+
+        <button type="button" class="nav-tab-btn" data-tab="new-arrivals" data-title-key="newArrivals" data-icon="fa-wand-magic-sparkles">
+          <i class="fa-solid fa-wand-magic-sparkles"></i>
+          <span data-i18n="navNewArrivals">وصل حديثاً</span>
+        </button>
+
+        <button type="button" class="nav-tab-btn cart-btn-wrap" data-tab="cart" data-title-key="cart" data-icon="fa-cart-shopping">
+          <div class="icon-with-badge">
+            <i class="fa-solid fa-cart-shopping"></i>
+            <span class="cart-badge">2</span>
+          </div>
+          <span data-i18n="navCart">السلة</span>
+        </button>
+      </nav>
+
+      <!-- أدوات التحكم والعمليات السريعة -->
+      <div class="control-actions">
+        <button type="button" class="btn-action whatsapp" id="whatsappBtn" title="تواصل عبر واتساب">
+          <i class="fa-brands fa-whatsapp"></i>
+        </button>
+        <button type="button" class="btn-action lang-switch" id="langBtn" title="تغيير اللغة">EN</button>
+        <button type="button" class="btn-action theme-toggle" id="themeBtn" title="الوضع الليلي">
+          <i class="fa-solid fa-moon"></i>
+        </button>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- محتوى الموقع الأساسي -->
+  <main class="site-container main-wrapper">
+    
+    <!-- الصفحة الرئيسية -->
+    <div id="tab-home" class="view-panel active">
+      
+      <!-- 1. شريط البحث المطور -->
+      <section class="search-hero-bar">
+        <div class="search-field">
+          <input type="text" id="searchInput" placeholder="ابحث عن منتج، شركة أو تصنيف من Souq Dental..." data-i18n-ph="searchPlaceholder" />
+          <i class="fa-solid fa-magnifying-glass"></i>
+        </div>
+      </section>
+
+      <!-- 2. Slider بانر العروض الكبير (تلقائي) -->
+      <section class="hero-slider-section">
+        <div class="swiper swiper-hero">
+          <div class="swiper-wrapper">
+            
+            <!-- بطاقة العرض 1 -->
+            <div class="swiper-slide">
+              <div class="promo-banner banner-theme-1">
+                <div class="banner-badge-box">
+                  <i class="fa-solid fa-tag"></i>
+                </div>
+                <div class="banner-details">
+                  <h2 data-i18n="bannerTitle1">عروض كبرى العيادات</h2>
+                  <p data-i18n="bannerSubtitle1">خصم يصل إلى 30% على مستلزمات ومواد الأسنان</p>
+                  <button type="button" class="btn-cta">
+                    <span data-i18n="bannerCta">تسوق الآن</span>
+                    <i class="fa-solid fa-arrow-left arrow-icon"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- بطاقة العرض 2 -->
+            <div class="swiper-slide">
+              <div class="promo-banner banner-theme-2">
+                <div class="banner-badge-box">
+                  <i class="fa-solid fa-gift"></i>
+                </div>
+                <div class="banner-details">
+                  <h2 data-i18n="bannerTitle2">باقة الحشوات والترميم</h2>
+                  <p data-i18n="bannerSubtitle2">اشتري 3 حقن كومبوزيت 3M واحصل على بوند مجاني</p>
+                  <button type="button" class="btn-cta">
+                    <span data-i18n="bannerCta">اطلب الباقة</span>
+                    <i class="fa-solid fa-arrow-left arrow-icon"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- بطاقة العرض 3 -->
+            <div class="swiper-slide">
+              <div class="promo-banner banner-theme-3">
+                <div class="banner-badge-box">
+                  <i class="fa-solid fa-percent"></i>
+                </div>
+                <div class="banner-details">
+                  <h2 data-i18n="bannerTitle3">باقة التعقيم ومكافحة العدوى</h2>
+                  <p data-i18n="bannerSubtitle3">خصومات حصرية تصل إلى 40% على أدوات ومحاليل التعقيم</p>
+                  <button type="button" class="btn-cta">
+                    <span data-i18n="bannerCta">تصفح التخفيضات</span>
+                    <i class="fa-solid fa-arrow-left arrow-icon"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <div class="hero-pagination"></div>
+      </section>
+
+      <!-- 3. Slider قسم الشركات (يدوي) -->
+      <section class="catalog-block">
+        <div class="block-header">
+          <div class="block-title">
+            <span class="title-accent-bar"></span>
+            <h3 data-i18n="browseCompanies">أبرز الشركات والماركات العالمية</h3>
+          </div>
+          <a href="#" class="link-view-all">
+            <span data-i18n="seeAll">عرض الكل</span>
+            <i class="fa-solid fa-chevron-left arrow-icon"></i>
+          </a>
+        </div>
+        
+        <div class="swiper swiper-companies">
+          <div class="swiper-wrapper">
+            <div class="swiper-slide">
+              <div class="entity-card">
+                <div class="entity-icon"><i class="fa-solid fa-briefcase-medical"></i></div>
+                <span class="entity-label">3M ESPE</span>
+              </div>
+            </div>
+            <div class="swiper-slide">
+              <div class="entity-card">
+                <div class="entity-icon"><i class="fa-solid fa-dna"></i></div>
+                <span class="entity-label">Dentsply Sirona</span>
+              </div>
+            </div>
+            <div class="swiper-slide">
+              <div class="entity-card">
+                <div class="entity-icon"><i class="fa-solid fa-flask-vial"></i></div>
+                <span class="entity-label">Kerr Dental</span>
+              </div>
+            </div>
+            <div class="swiper-slide">
+              <div class="entity-card">
+                <div class="entity-icon"><i class="fa-solid fa-tooth"></i></div>
+                <span class="entity-label">Ivoclar Vivadent</span>
+              </div>
+            </div>
+            <div class="swiper-slide">
+              <div class="entity-card">
+                <div class="entity-icon"><i class="fa-solid fa-syringe"></i></div>
+                <span class="entity-label">Septodont</span>
+              </div>
+            </div>
+            <div class="swiper-slide">
+              <div class="entity-card">
+                <div class="entity-icon"><i class="fa-solid fa-kit-medical"></i></div>
+                <span class="entity-label">GC America</span>
+              </div>
+            </div>
+            <div class="swiper-slide">
+              <div class="entity-card">
+                <div class="entity-icon"><i class="fa-solid fa-wand-magic-sparkles"></i></div>
+                <span class="entity-label">Ultradent</span>
+              </div>
+            </div>
+            <div class="swiper-slide">
+              <div class="entity-card">
+                <div class="entity-icon"><i class="fa-solid fa-layer-group"></i></div>
+                <span class="entity-label">Coltene</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 4. Slider قسم التصنيفات (يدوي) -->
+      <section class="catalog-block">
+        <div class="block-header">
+          <div class="block-title">
+            <span class="title-accent-bar"></span>
+            <h3 data-i18n="categoriesTitle">التصنيفات الرئيسية</h3>
+          </div>
+          <a href="#" class="link-view-all">
+            <span data-i18n="seeAll">عرض الكل</span>
+            <i class="fa-solid fa-chevron-left arrow-icon"></i>
+          </a>
+        </div>
+        
+        <div class="swiper swiper-categories">
+          <div class="swiper-wrapper">
+            <div class="swiper-slide">
+              <div class="entity-card">
+                <div class="entity-icon"><i class="fa-solid fa-toolbox"></i></div>
+                <span class="entity-label" data-i18n="catRestoratives">مواد الترميم والحشوات</span>
+              </div>
+            </div>
+            <div class="swiper-slide">
+              <div class="entity-card">
+                <div class="entity-icon"><i class="fa-solid fa-tooth"></i></div>
+                <span class="entity-label" data-i18n="catEndodontics">علاج الجذور والأعصاب</span>
+              </div>
+            </div>
+            <div class="swiper-slide">
+              <div class="entity-card">
+                <div class="entity-icon"><i class="fa-solid fa-table-cells"></i></div>
+                <span class="entity-label" data-i18n="catImpressions">مواد الطبعات والسيليكون</span>
+              </div>
+            </div>
+            <div class="swiper-slide">
+              <div class="entity-card">
+                <div class="entity-icon"><i class="fa-solid fa-shield-virus"></i></div>
+                <span class="entity-label" data-i18n="catSterilization">التعقيم ومكافحة العدوى</span>
+              </div>
+            </div>
+            <div class="swiper-slide">
+              <div class="entity-card">
+                <div class="entity-icon"><i class="fa-solid fa-syringe"></i></div>
+                <span class="entity-label" data-i18n="catAnesthesia">التخدير والإبر الجراحية</span>
+              </div>
+            </div>
+            <div class="swiper-slide">
+              <div class="entity-card">
+                <div class="entity-icon"><i class="fa-solid fa-stethoscope"></i></div>
+                <span class="entity-label" data-i18n="catEquipment">أجهزة ومعدات العيادات</span>
+              </div>
+            </div>
+            <div class="swiper-slide">
+              <div class="entity-card">
+                <div class="entity-icon"><i class="fa-solid fa-drill"></i></div>
+                <span class="entity-label" data-i18n="catBurs">السنابل وأدوات الحفر</span>
+              </div>
+            </div>
+            <div class="swiper-slide">
+              <div class="entity-card">
+                <div class="entity-icon"><i class="fa-solid fa-box-open"></i></div>
+                <span class="entity-label" data-i18n="catDisposables">المستهلكات اليومية</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </div>
+
+    <!-- صفحة التبويب المخصصة للأزرار (العروض، وصل حديثاً، السلة) -->
+    <div id="tab-generic" class="view-panel generic-tab-view">
+      <div class="generic-display-card">
+        <div class="generic-icon-circle">
+          <i id="generic-icon" class="fa-solid fa-house"></i>
+        </div>
+        <h2 id="generic-title">الرئيسية</h2>
+        <p class="generic-subtitle" data-i18n="genericSub">محتوى تجريبي للصفحة المختارة</p>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- الفوتر الغامق الاحترافي -->
+  <footer class="site-footer">
+    <div class="site-container footer-inner">
+      
+      <!-- الجانب الأيمن: الاسم والعلامة التجارية والحقوق -->
+      <div class="footer-brand-side">
+        <div class="footer-logo">
+          <i class="fa-solid fa-tooth"></i>
+          <span>MADA</span>
+          <span class="footer-trade-mark">® Trademark</span>
+        </div>
+        <p class="footer-copyright" data-i18n="footerRights">
+          جميع الحقوق محفوظة © 2026 MADA Dental Platform.
+        </p>
+      </div>
+
+      <!-- الجانب المقابل: Made by shortcut -->
+      <div class="footer-shortcut-side">
+        <i class="fa-solid fa-bolt"></i>
+        <span>Made by <strong class="brand-creator">shortcut</strong></span>
+      </div>
+
+    </div>
+  </footer>
+
+  <!-- Swiper JS CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const themeBtn = document.getElementById('themeBtn');
+      const langBtn = document.getElementById('langBtn');
+      const whatsappBtn = document.getElementById('whatsappBtn');
+      const brandLogo = document.getElementById('brandLogo');
+      const navTabs = document.querySelectorAll('.nav-tab-btn');
+      const homeTab = document.getElementById('tab-home');
+      const genericTab = document.getElementById('tab-generic');
+      const genericTitle = document.getElementById('generic-title');
+      const genericIcon = document.getElementById('generic-icon');
+
+      const translations = {
+        ar: {
+          tagline: 'مستلزمات طب الأسنان',
+          navHome: 'الرئيسية',
+          navOffers: 'العروض',
+          navNewArrivals: 'وصل حديثاً',
+          navCart: 'السلة',
+          searchPlaceholder: 'ابحث عن منتج، شركة أو تصنيف من Souq Dental...',
+          bannerTitle1: 'عروض كبرى العيادات',
+          bannerSubtitle1: 'خصم يصل إلى 30% على مستلزمات ومواد الأسنان',
+          bannerTitle2: 'باقة الحشوات والترميم',
+          bannerSubtitle2: 'اشتري 3 حقن كومبوزيت 3M واحصل على بوند مجاني',
+          bannerTitle3: 'باقة التعقيم ومكافحة العدوى',
+          bannerSubtitle3: 'خصومات حصرية تصل إلى 40% على أدوات ومحاليل التعقيم',
+          bannerCta: 'تسوق الآن',
+          browseCompanies: 'أبرز الشركات والماركات العالمية',
+          categoriesTitle: 'التصنيفات الرئيسية',
+          seeAll: 'عرض الكل',
+          catRestoratives: 'مواد الترميم والحشوات',
+          catEndodontics: 'علاج الجذور والأعصاب',
+          catImpressions: 'مواد الطبعات والسيليكون',
+          catSterilization: 'التعقيم ومكافحة العدوى',
+          catAnesthesia: 'التخدير والإبر الجراحية',
+          catEquipment: 'أجهزة ومعدات العيادات',
+          catBurs: 'السنابل وأدوات الحفر',
+          catDisposables: 'المستهلكات اليومية',
+          genericSub: 'محتوى تجريبي للصفحة المختارة',
+          footerRights: 'جميع الحقوق محفوظة © 2026 MADA Dental Platform.',
+          titles: {
+            home: 'الرئيسية',
+            offers: 'العروض الترويجية',
+            newArrivals: 'وصل حديثاً',
+            cart: 'سلة التسوق'
+          }
+        },
+        en: {
+          tagline: 'Dental Supplies Platform',
+          navHome: 'Home',
+          navOffers: 'Offers',
+          navNewArrivals: 'New Arrivals',
+          navCart: 'Cart',
+          searchPlaceholder: 'Search for product, brand or category from Souq Dental...',
+          bannerTitle1: 'Clinic Special Deals',
+          bannerSubtitle1: 'Up to 30% discount on dental supplies & essentials',
+          bannerTitle2: 'Restoratives Bundle',
+          bannerSubtitle2: 'Buy 3 3M Composite Syringes and get Bond for Free',
+          bannerTitle3: 'Infection Control Bundle',
+          bannerSubtitle3: 'Exclusive discounts up to 40% on sterilization tools',
+          bannerCta: 'Shop Now',
+          browseCompanies: 'Leading Dental Brands',
+          categoriesTitle: 'Main Categories',
+          seeAll: 'View All',
+          catRestoratives: 'Restoratives & Composites',
+          catEndodontics: 'Endodontics',
+          catImpressions: 'Impression Materials',
+          catSterilization: 'Infection Control',
+          catAnesthesia: 'Anesthesia & Surgery',
+          catEquipment: 'Dental Equipment',
+          catBurs: 'Burs & Rotary',
+          catDisposables: 'Disposables & PPE',
+          genericSub: 'Demo content for the selected page',
+          footerRights: 'All Rights Reserved © 2026 MADA Dental Platform.',
+          titles: {
+            home: 'Home',
+            offers: 'Special Offers',
+            newArrivals: 'New Arrivals',
+            cart: 'Shopping Cart'
+          }
+        }
+      };
+
+      let currentLang = 'ar';
+
+      // 1. تهيئة Slider البانر الكبير (تلقائي)
+      let swiperHero = new Swiper('.swiper-hero', {
+        loop: true,
+        speed: 600,
+        autoplay: {
+          delay: 4500,
+          disableOnInteraction: false,
+          pauseOnMouseEnter: true,
+        },
+        pagination: {
+          el: '.hero-pagination',
+          clickable: true,
+        }
+      });
+
+      // 2. إعدادات سلايدر البطاقات (يدوي وطبيعي)
+      const manualSwiperOptions = {
+        loop: false,
+        grabCursor: true,
+        spaceBetween: 16,
+        slidesPerView: 1.6,
+        breakpoints: {
+          480: { slidesPerView: 2.3, spaceBetween: 16 },
+          768: { slidesPerView: 3.4, spaceBetween: 20 },
+          1024: { slidesPerView: 4.3, spaceBetween: 22 },
+          1280: { slidesPerView: 5, spaceBetween: 24 }
+        }
+      };
+
+      let swiperCompanies = new Swiper('.swiper-companies', manualSwiperOptions);
+      let swiperCategories = new Swiper('.swiper-categories', manualSwiperOptions);
+
+      // 3. زر الوضع الليلي (Dark Mode)
+      if (themeBtn) {
+        themeBtn.onclick = function() {
+          document.body.classList.toggle('dark-mode');
+          const isDark = document.body.classList.contains('dark-mode');
+          themeBtn.innerHTML = isDark 
+            ? '<i class="fa-solid fa-sun"></i>' 
+            : '<i class="fa-solid fa-moon"></i>';
+        };
+      }
+
+      // 4. زر الواتساب
+      if (whatsappBtn) {
+        whatsappBtn.onclick = function() {
+          const rawNumber = '0934049292';
+          const internationalNumber = rawNumber.startsWith('0') 
+            ? '963' + rawNumber.substring(1) 
+            : rawNumber;
+
+          const message = encodeURIComponent('شكراً على الترشيح');
+          const whatsappUrl = `https://wa.me/${internationalNumber}?text=${message}`;
+          window.open(whatsappUrl, '_blank');
+        };
+      }
+
+      // دالة التبديل بين التبويبات
+      function switchTab(targetBtn) {
+        navTabs.forEach((b) => b.classList.remove('active'));
+        targetBtn.classList.add('active');
+
+        const tab = targetBtn.getAttribute('data-tab');
+        const titleKey = targetBtn.getAttribute('data-title-key');
+        const iconClass = targetBtn.getAttribute('data-icon');
+
+        if (tab === 'home') {
+          homeTab.classList.add('active');
+          genericTab.classList.remove('active');
+          
+          setTimeout(() => {
+            if (swiperHero) swiperHero.update();
+            if (swiperCompanies) swiperCompanies.update();
+            if (swiperCategories) swiperCategories.update();
+          }, 50);
+        } else {
+          homeTab.classList.remove('active');
+          genericTab.classList.add('active');
+
+          if (translations[currentLang].titles[titleKey]) {
+            genericTitle.textContent = translations[currentLang].titles[titleKey];
+          }
+          genericIcon.className = `fa-solid ${iconClass}`;
+        }
+
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+
+      // 5. تفعيل أزرار التنقل
+      navTabs.forEach((btn) => {
+        btn.addEventListener('click', function(e) {
+          e.preventDefault();
+          const target = this.closest('.nav-tab-btn') || this;
+          switchTab(target);
+        });
+      });
+
+      if (brandLogo) {
+        brandLogo.onclick = function() {
+          const homeBtn = document.querySelector('.nav-tab-btn[data-tab="home"]');
+          if (homeBtn) switchTab(homeBtn);
+        };
+      }
+
+      // 6. زر تبديل اللغة (AR / EN)
+      if (langBtn) {
+        langBtn.onclick = function() {
+          currentLang = currentLang === 'ar' ? 'en' : 'ar';
+          
+          document.documentElement.setAttribute('dir', currentLang === 'ar' ? 'rtl' : 'ltr');
+          document.documentElement.setAttribute('lang', currentLang);
+          langBtn.textContent = currentLang === 'ar' ? 'EN' : 'AR';
+
+          // ترجمة النصوص
+          document.querySelectorAll('[data-i18n]').forEach((el) => {
+            const key = el.getAttribute('data-i18n');
+            if (translations[currentLang][key]) {
+              el.textContent = translations[currentLang][key];
+            }
+          });
+
+          // ترجمة الـ Placeholders
+          document.querySelectorAll('[data-i18n-ph]').forEach((el) => {
+            const key = el.getAttribute('data-i18n-ph');
+            if (translations[currentLang][key]) {
+              el.setAttribute('placeholder', translations[currentLang][key]);
+            }
+          });
+
+          // تحديث عنوان الصفحة المعروضة حالياً
+          const activeTabBtn = document.querySelector('.nav-tab-btn.active');
+          if (activeTabBtn && activeTabBtn.getAttribute('data-tab') !== 'home') {
+            const titleKey = activeTabBtn.getAttribute('data-title-key');
+            genericTitle.textContent = translations[currentLang].titles[titleKey];
+          }
+
+          // إعادة بناء السلايدرز بعد تبديل اتجاه الصفحة (RTL / LTR)
+          setTimeout(() => {
+            if (swiperHero) {
+              swiperHero.destroy();
+              swiperHero = new Swiper('.swiper-hero', {
+                loop: true,
+                speed: 600,
+                autoplay: { delay: 4500, disableOnInteraction: false, pauseOnMouseEnter: true },
+                pagination: { el: '.hero-pagination', clickable: true }
+              });
+            }
+            if (swiperCompanies) {
+              swiperCompanies.destroy();
+              swiperCompanies = new Swiper('.swiper-companies', manualSwiperOptions);
+            }
+            if (swiperCategories) {
+              swiperCategories.destroy();
+              swiperCategories = new Swiper('.swiper-categories', manualSwiperOptions);
+            }
+          }, 100);
+        };
+      }
+    });
+  </script>
+</body>
+</html>
