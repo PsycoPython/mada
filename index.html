@@ -1,771 +1,219 @@
-/* =========================================================================
-   1. قاعدة البيانات المؤقتة (Dummy Data)
-   ========================================================================= */
-const DUMMY_BRANDS = [
-  { id: "3M", name: "3M ESPE", icon: "fa-briefcase-medical" },
-  { id: "Dentsply", name: "Dentsply Sirona", icon: "fa-dna" },
-  { id: "Kerr", name: "Kerr Dental", icon: "fa-flask-vial" },
-  { id: "Ivoclar", name: "Ivoclar Vivadent", icon: "fa-tooth" },
-  { id: "Septodont", name: "Septodont", icon: "fa-syringe" },
-  { id: "GC", name: "GC America", icon: "fa-kit-medical" },
-  { id: "Ultradent", name: "Ultradent", icon: "fa-wand-magic-sparkles" },
-  { id: "Coltene", name: "Coltene", icon: "fa-layer-group" }
-];
-
-const DUMMY_CATEGORIES = [
-  { id: "restoratives", name: "مواد الترميم والحشوات", name_en: "Restoratives & Composites", icon: "fa-toolbox" },
-  { id: "endodontics", name: "علاج الجذور والأعصاب", name_en: "Endodontics", icon: "fa-tooth" },
-  { id: "impressions", name: "مواد الطبعات والسيليكون", name_en: "Impression Materials", icon: "fa-table-cells" },
-  { id: "sterilization", name: "التعقيم ومكافحة العدوى", name_en: "Infection Control", icon: "fa-shield-virus" },
-  { id: "anesthesia", name: "التخدير والإبر الجراحية", name_en: "Anesthesia & Surgery", icon: "fa-syringe" },
-  { id: "equipment", name: "أجهزة ومعدات العيادات", name_en: "Dental Equipment", icon: "fa-stethoscope" },
-  { id: "burs", name: "السنابل وأدوات الحفر", name_en: "Burs & Rotary", icon: "fa-drill" },
-  { id: "disposables", name: "المستهلكات اليومية", name_en: "Disposables & PPE", icon: "fa-box-open" }
-];
-
-const DUMMY_PRODUCTS = [
-  {
-    id: "p1",
-    name: "Filtek Z350 XT Universal Restorative",
-    code: "3M-Z350-UN",
-    company: "3M",
-    companyName: "3M ESPE",
-    category: "restoratives",
-    categoryName: "مواد الترميم والحشوات",
-    description: "حقنة كومبوزيت نانوية متعددة الاستخدامات للأسنان الأمامية والخلفية ذات لمعان فائق.",
-    is_new: true,
-    discount_tag: "عرض باقة العيادات"
-  },
-  {
-    id: "p2",
-    name: "AH Plus Root Canal Sealer",
-    code: "DS-AHPLUS-01",
-    company: "Dentsply",
-    companyName: "Dentsply Sirona",
-    category: "endodontics",
-    categoryName: "علاج الجذور والأعصاب",
-    description: "سيلر راتنجي لإحكام إغلاق القنوات الجذرية مع توافق حيوي واستقرار أبعادي ممتاز.",
-    is_new: false,
-    discount_tag: "عرض خاص"
-  },
-  {
-    id: "p3",
-    name: "OptiBond Universal Adhesive",
-    code: "KR-OPT-BOND",
-    company: "Kerr",
-    companyName: "Kerr Dental",
-    category: "restoratives",
-    categoryName: "مواد الترميم والحشوات",
-    description: "لاصق ترابطي شامل بقوة التصاق عالية يدعم جميع تقنيات التخريش.",
-    is_new: true,
-    discount_tag: null
-  },
-  {
-    id: "p4",
-    name: "Virtual Extra-Light Impression Silicone",
-    code: "IV-VIRT-EXT",
-    company: "Ivoclar",
-    companyName: "Ivoclar Vivadent",
-    category: "impressions",
-    categoryName: "مواد الطبعات والسيليكون",
-    description: "سيليكون طبعات مائي عالي الدقة مع قدرة ممتازة على قراءة التفاصيل الهامشية.",
-    is_new: false,
-    discount_tag: "عرض متاح"
-  },
-  {
-    id: "p5",
-    name: "Septanest 1:100,000 Articaine Anesthetic",
-    code: "SP-SEPT-ART",
-    company: "Septodont",
-    companyName: "Septodont",
-    category: "anesthesia",
-    categoryName: "التخدير والإبر الجراحية",
-    description: "خراطيش بنج موضعي أرتيكائين سريع المفعول وعالي الكفاءة للعمليات الجراحية والقلع.",
-    is_new: false,
-    discount_tag: null
-  },
-  {
-    id: "p6",
-    name: "Fuji IX GP Fast Glass Ionomer",
-    code: "GC-FUJI-9F",
-    company: "GC",
-    companyName: "GC America",
-    category: "restoratives",
-    categoryName: "مواد الترميم والحشوات",
-    description: "حشوة زجاجية أصلية سريعة التصلب ومقاومة للاهتراء مع إفراز مستمر للفلورايد.",
-    is_new: true,
-    discount_tag: "عرض كميات"
-  },
-  {
-    id: "p7",
-    name: "UltraCal XS Calcium Hydroxide Paste",
-    code: "UL-UCAL-XS",
-    company: "Ultradent",
-    companyName: "Ultradent",
-    category: "endodontics",
-    categoryName: "علاج الجذور والأعصاب",
-    description: "معجون هيدروكسيد الكالسيوم المضاد للبكتيريا بتركيبة راديوية محكمة للحقن المباشر.",
-    is_new: false,
-    discount_tag: null
-  },
-  {
-    id: "p8",
-    name: "MicroMega One Flare Rotary Files",
-    code: "CL-MM-FLARE",
-    company: "Coltene",
-    companyName: "Coltene",
-    category: "endodontics",
-    categoryName: "علاج الجذور والأعصاب",
-    description: "مبارد روتاري مرنة مخصصة لتوسيع المدخل التاجي للقنوات الجذرية بأمان عالي.",
-    is_new: true,
-    discount_tag: "عرض خاص"
-  }
-];
-
-/* =========================================================================
-   2. حالة الصفحة والفلاتر والسلة
-   ========================================================================= */
-let currentView = 'home'; // 'home' | 'offers' | 'new-arrivals' | 'filtered'
-
-const filterState = {
-  company: null,
-  category: null,
-  searchQuery: "",
-  onlyOffers: false,
-  onlyNew: false
-};
-
-let swiperHeroInstance = null;
-let swiperCompaniesInstance = null;
-let swiperCategoriesInstance = null;
-
-let cart = JSON.parse(localStorage.getItem('mada_b2b_cart')) || [];
-let currentLang = 'ar';
-
-const translations = {
-  ar: {
-    tagline: 'مستلزمات طب الأسنان',
-    navHome: 'الرئيسية',
-    navOffers: 'العروض',
-    navNewArrivals: 'وصل حديثاً',
-    navCart: 'السلة',
-    searchPlaceholder: 'ابحث باسم المنتج، الكود، أو الشركة...',
-    bannerTitle1: 'عروض كبرى العيادات',
-    bannerSubtitle1: 'خصومات خاصة للطلبيات المجمعة والمراكز الطبية',
-    bannerTitle2: 'باقة الحشوات والترميم',
-    bannerSubtitle2: 'باقات مميزة من كبرى الماركات العالمية المعتمدة',
-    bannerTitle3: 'تجهيزات التعقيم والوقاية',
-    bannerSubtitle3: 'حلول متكاملة لمكافحة العدوى وضمان الجودة',
-    bannerCta: 'استعراض المواد',
-    browseCompanies: 'أبرز الشركات والماركات',
-    categoriesTitle: 'التصنيفات الرئيسية',
-    productsCatalogTitle: 'نتائج البحث والمواد المحددة',
-    productsOffersTitle: 'جميع العروض والخصومات الخاصة',
-    productsNewTitle: 'جميع المواد والتجهيزات المضافة حديثاً',
-    resetFilters: 'مسح التصفية والعودة',
-    cartTitle: 'قائمة الطلب الحالية',
-    sendOrderBtn: 'إرسال الطلبية عبر واتساب',
-    addToCart: 'إضافة للسلة',
-    codeText: 'كود:',
-    emptyCart: 'السلة فارغة حالياً. ابدأ بتجميع المواد المطلوبة!',
-    noProductsFound: 'لم يتم العثور على مواد مطابقة للتصفية الحالية.',
-    footerRights: 'جميع الحقوق محفوظة © 2026 MADA Dental Platform.'
-  },
-  en: {
-    tagline: 'Dental Supplies Platform',
-    navHome: 'Home',
-    navOffers: 'Offers',
-    navNewArrivals: 'New Arrivals',
-    navCart: 'Cart',
-    searchPlaceholder: 'Search by product name, code, or brand...',
-    bannerTitle1: 'Clinic Special Deals',
-    bannerSubtitle1: 'Special discounts for bulk orders and dental centers',
-    bannerTitle2: 'Restoratives Bundle',
-    bannerSubtitle2: 'Premium packages from certified international brands',
-    bannerTitle3: 'Infection Control Gear',
-    bannerSubtitle3: 'Integrated solutions for sterilization and quality',
-    bannerCta: 'Explore Items',
-    browseCompanies: 'Leading Dental Brands',
-    categoriesTitle: 'Main Categories',
-    productsCatalogTitle: 'Search Results & Filtered Supplies',
-    productsOffersTitle: 'All Special Deals & Offers',
-    productsNewTitle: 'All New Arrival Products',
-    resetFilters: 'Clear Filters & Back',
-    cartTitle: 'Current Order List',
-    sendOrderBtn: 'Send Order via WhatsApp',
-    addToCart: 'Add to Cart',
-    codeText: 'Code:',
-    emptyCart: 'Your cart is empty. Start adding required items!',
-    noProductsFound: 'No matching items found for current filter.',
-    footerRights: 'All Rights Reserved © 2026 MADA Dental Platform.'
-  }
-};
-
-/* =========================================================================
-   3. إدارة الواجهات والتنقل بين الصفحات
-   ========================================================================= */
-function switchView(viewName) {
-  currentView = viewName;
-  const homeSections = document.getElementById('homeExtraSections');
-  const catalogSection = document.getElementById('productsCatalogSection');
-  const mainTitleEl = document.getElementById('catalogMainTitle');
-
-  document.querySelectorAll('.main-navigation .nav-tab-btn').forEach(btn => btn.classList.remove('active'));
-
-  if (viewName === 'home') {
-    document.getElementById('navHomeBtn').classList.add('active');
-    if (homeSections) homeSections.style.display = 'block';
-    if (catalogSection) catalogSection.style.display = 'none'; // إخفاء المنتجات في الرئيسية
-    
-    filterState.onlyOffers = false;
-    filterState.onlyNew = false;
-    filterState.company = null;
-    filterState.category = null;
-    filterState.searchQuery = "";
-    const searchInp = document.getElementById('searchInput');
-    if (searchInp) searchInp.value = "";
-
-    updateEntitySelectedUI();
-
-    setTimeout(() => {
-      if (swiperHeroInstance) swiperHeroInstance.update();
-      if (swiperCompaniesInstance) swiperCompaniesInstance.update();
-      if (swiperCategoriesInstance) swiperCategoriesInstance.update();
-    }, 50);
-
-  } else if (viewName === 'offers') {
-    document.getElementById('navOffersBtn').classList.add('active');
-    if (homeSections) homeSections.style.display = 'none';
-    if (catalogSection) catalogSection.style.display = 'block';
-    
-    filterState.onlyOffers = true;
-    filterState.onlyNew = false;
-    filterState.company = null;
-    filterState.category = null;
-    if (mainTitleEl) mainTitleEl.textContent = translations[currentLang].productsOffersTitle;
-    renderProducts();
-
-  } else if (viewName === 'new-arrivals') {
-    document.getElementById('navNewBtn').classList.add('active');
-    if (homeSections) homeSections.style.display = 'none';
-    if (catalogSection) catalogSection.style.display = 'block';
-    
-    filterState.onlyNew = true;
-    filterState.onlyOffers = false;
-    filterState.company = null;
-    filterState.category = null;
-    if (mainTitleEl) mainTitleEl.textContent = translations[currentLang].productsNewTitle;
-    renderProducts();
-
-  } else if (viewName === 'filtered') {
-    if (homeSections) homeSections.style.display = 'none';
-    if (catalogSection) catalogSection.style.display = 'block';
-    if (mainTitleEl) mainTitleEl.textContent = translations[currentLang].productsCatalogTitle;
-    renderProducts();
-  }
-
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-}
-
-window.openOffersPage = function() {
-  switchView('offers');
-};
-
-/* =========================================================================
-   4. جلب البيانات
-   ========================================================================= */
-async function fetchProductsFromAPI() {
-  return DUMMY_PRODUCTS.filter(item => {
-    const matchesCompany = filterState.company ? item.company === filterState.company : true;
-    const matchesCategory = filterState.category ? item.category === filterState.category : true;
-    const matchesOffers = filterState.onlyOffers ? Boolean(item.discount_tag) : true;
-    const matchesNew = filterState.onlyNew ? Boolean(item.is_new) : true;
-    const query = filterState.searchQuery.toLowerCase().trim();
-    const matchesSearch = query 
-      ? (item.name.toLowerCase().includes(query) || item.code.toLowerCase().includes(query) || item.companyName.toLowerCase().includes(query))
-      : true;
-
-    return matchesCompany && matchesCategory && matchesOffers && matchesNew && matchesSearch;
-  });
-}
-
-/* =========================================================================
-   5. تهيئة Swiper
-   ========================================================================= */
-const manualSwiperOptions = {
-  loop: false,
-  grabCursor: true,
-  spaceBetween: 8,
-  slidesPerView: 2.2,
-  observer: true,
-  observeParents: true,
-  breakpoints: {
-    340: { slidesPerView: 2.4, spaceBetween: 10 },
-    480: { slidesPerView: 3.2, spaceBetween: 12 },
-    768: { slidesPerView: 4.2, spaceBetween: 16 },
-    1024: { slidesPerView: 5.2, spaceBetween: 18 },
-    1280: { slidesPerView: 5.8, spaceBetween: 24 }
-  }
-};
-
-function setupAllSwipers() {
-  if (swiperHeroInstance) swiperHeroInstance.destroy(true, true);
-  if (swiperCompaniesInstance) swiperCompaniesInstance.destroy(true, true);
-  if (swiperCategoriesInstance) swiperCategoriesInstance.destroy(true, true);
-
-  swiperHeroInstance = new Swiper('.swiper-hero', {
-    loop: true,
-    speed: 600,
-    observer: true,
-    observeParents: true,
-    autoplay: { delay: 4500, disableOnInteraction: false, pauseOnMouseEnter: true },
-    pagination: { el: '.hero-pagination', clickable: true }
-  });
-
-  swiperCompaniesInstance = new Swiper('.swiper-companies', manualSwiperOptions);
-  swiperCategoriesInstance = new Swiper('.swiper-categories', manualSwiperOptions);
-}
-
-/* =========================================================================
-   6. دوال الرسم
-   ========================================================================= */
-function initCompaniesDOM() {
-  const container = document.getElementById('companiesContainer');
-  if (!container) return;
-  container.innerHTML = DUMMY_BRANDS.map(brand => `
-    <div class="swiper-slide">
-      <div class="entity-card" data-company-id="${brand.id}" onclick="handleCompanyClick('${brand.id}')">
-        <div class="entity-icon"><i class="fa-solid ${brand.icon}"></i></div>
-        <span class="entity-label">${brand.name}</span>
-      </div>
-    </div>
-  `).join('');
-}
-
-function initCategoriesDOM() {
-  const container = document.getElementById('categoriesContainer');
-  if (!container) return;
-  container.innerHTML = DUMMY_CATEGORIES.map(cat => `
-    <div class="swiper-slide">
-      <div class="entity-card" data-category-id="${cat.id}" onclick="handleCategoryClick('${cat.id}')">
-        <div class="entity-icon"><i class="fa-solid ${cat.icon}"></i></div>
-        <span class="entity-label">${currentLang === 'ar' ? cat.name : cat.name_en}</span>
-      </div>
-    </div>
-  `).join('');
-}
-
-function updateEntitySelectedUI() {
-  document.querySelectorAll('[data-company-id]').forEach(el => {
-    const id = el.getAttribute('data-company-id');
-    if (filterState.company === id) {
-      el.classList.add('selected');
-    } else {
-      el.classList.remove('selected');
-    }
-  });
-
-  document.querySelectorAll('[data-category-id]').forEach(el => {
-    const id = el.getAttribute('data-category-id');
-    if (filterState.category === id) {
-      el.classList.add('selected');
-    } else {
-      el.classList.remove('selected');
-    }
-  });
-}
-
-function renderFilterStatusBar() {
-  const bar = document.getElementById('filterStatusBar');
-  const chipsContainer = document.getElementById('activeChipsContainer');
-  if (!bar || !chipsContainer) return;
-
-  const hasActiveFilters = filterState.company || filterState.category || filterState.searchQuery || filterState.onlyOffers || filterState.onlyNew;
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>MADA | منصة مستلزمات طب الأسنان</title>
   
-  if (!hasActiveFilters) {
-    bar.style.display = 'none';
-    return;
-  }
-
-  bar.style.display = 'flex';
-  let chipsHTML = '';
-
-  if (filterState.company) {
-    const brandObj = DUMMY_BRANDS.find(b => b.id === filterState.company);
-    chipsHTML += `<span class="chip">${brandObj ? brandObj.name : filterState.company} <i class="fa-solid fa-xmark" onclick="removeCompanyFilter()"></i></span>`;
-  }
-
-  if (filterState.category) {
-    const catObj = DUMMY_CATEGORIES.find(c => c.id === filterState.category);
-    const catLabel = catObj ? (currentLang === 'ar' ? catObj.name : catObj.name_en) : filterState.category;
-    chipsHTML += `<span class="chip">${catLabel} <i class="fa-solid fa-xmark" onclick="removeCategoryFilter()"></i></span>`;
-  }
-
-  if (filterState.searchQuery) {
-    chipsHTML += `<span class="chip">بحث: "${filterState.searchQuery}" <i class="fa-solid fa-xmark" onclick="clearSearch()"></i></span>`;
-  }
-
-  chipsContainer.innerHTML = chipsHTML;
-}
-
-async function renderProducts() {
-  const container = document.getElementById('productsGridContainer');
-  if (!container) return;
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
   
-  updateEntitySelectedUI();
-  renderFilterStatusBar();
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+  
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
 
-  const products = await fetchProductsFromAPI();
-
-  if (products.length === 0) {
-    container.innerHTML = `
-      <div style="grid-column: 1/-1; text-align: center; padding: 40px 10px; color: var(--text-muted);">
-        <i class="fa-solid fa-box-open" style="font-size: 36px; margin-bottom: 10px; color: var(--primary);"></i>
-        <p style="font-weight: 700; font-size: 13px;">${translations[currentLang].noProductsFound}</p>
-      </div>
-    `;
-    return;
-  }
-
-  container.innerHTML = products.map(p => {
-    let badgeHTML = '';
-    if (p.discount_tag) {
-      badgeHTML = `<span class="product-badge badge-offer"><i class="fa-solid fa-tag"></i> ${p.discount_tag}</span>`;
-    } else if (p.is_new) {
-      badgeHTML = `<span class="product-badge badge-new"><i class="fa-solid fa-wand-magic-sparkles"></i> ${translations[currentLang].navNewArrivals}</span>`;
-    }
-
-    return `
-      <div class="product-card" id="card-${p.id}">
-        <div>
-          <div class="product-head">
-            <span class="product-company"><i class="fa-solid fa-tooth"></i> ${p.companyName}</span>
-            ${badgeHTML}
-          </div>
-
-          <div class="product-info">
-            <h4>${p.name}</h4>
-            <span class="product-code">${translations[currentLang].codeText} ${p.code}</span>
-            <p class="product-desc">${p.description}</p>
-          </div>
+  <header class="site-header">
+    <div class="site-container header-inner">
+      
+      <div class="brand-identity" id="brandLogo">
+        <div class="brand-logo-icon">
+          <i class="fa-solid fa-tooth"></i>
         </div>
-
-        <div class="product-action-row">
-          <div class="qty-control">
-            <button type="button" class="qty-btn" onclick="updateCardQty('${p.id}', 1)">+</button>
-            <span class="qty-count" id="qty-${p.id}">1</span>
-            <button type="button" class="qty-btn" onclick="updateCardQty('${p.id}', -1)">-</button>
-          </div>
-          <button type="button" class="btn-add-cart" onclick="addProductToCart('${p.id}')">
-            <i class="fa-solid fa-cart-plus"></i>
-            <span>${translations[currentLang].addToCart}</span>
-          </button>
+        <div class="brand-meta">
+          <span class="brand-name">MADA</span>
+          <span class="brand-tagline" data-i18n="tagline">مستلزمات طب الأسنان</span>
         </div>
       </div>
-    `;
-  }).join('');
-}
 
-/* =========================================================================
-   7. إدارة السلة
-   ========================================================================= */
-function updateCardQty(productId, delta) {
-  const el = document.getElementById(`qty-${productId}`);
-  if (!el) return;
-  let val = parseInt(el.textContent) || 1;
-  val = Math.max(1, val + delta);
-  el.textContent = val;
-}
+      <nav class="main-navigation">
+        <button type="button" class="nav-tab-btn active" id="navHomeBtn">
+          <i class="fa-solid fa-house"></i>
+          <span data-i18n="navHome">الرئيسية</span>
+        </button>
 
-function addProductToCart(productId) {
-  const product = DUMMY_PRODUCTS.find(p => p.id === productId);
-  if (!product) return;
+        <button type="button" class="nav-tab-btn" id="navOffersBtn">
+          <i class="fa-solid fa-tags"></i>
+          <span data-i18n="navOffers">العروض</span>
+        </button>
 
-  const qtyEl = document.getElementById(`qty-${productId}`);
-  const quantityToAdd = qtyEl ? parseInt(qtyEl.textContent) || 1 : 1;
+        <button type="button" class="nav-tab-btn" id="navNewBtn">
+          <i class="fa-solid fa-wand-magic-sparkles"></i>
+          <span data-i18n="navNewArrivals">وصل حديثاً</span>
+        </button>
 
-  const existingIndex = cart.findIndex(item => item.id === productId);
-  if (existingIndex > -1) {
-    cart[existingIndex].qty += quantityToAdd;
-  } else {
-    cart.push({
-      id: product.id,
-      name: product.name,
-      code: product.code,
-      company: product.companyName,
-      qty: quantityToAdd
-    });
-  }
+        <button type="button" class="nav-tab-btn cart-btn-wrap" id="navCartBtn">
+          <i class="fa-solid fa-cart-shopping"></i>
+          <span data-i18n="navCart">السلة</span>
+          <span class="cart-badge" id="cartCountBadge">0</span>
+        </button>
+      </nav>
 
-  saveCart();
-  showToastNotice(`تمت إضافة (${quantityToAdd}) من ${product.name} إلى السلة`);
-  if (qtyEl) qtyEl.textContent = '1';
-}
-
-function saveCart() {
-  localStorage.setItem('mada_b2b_cart', JSON.stringify(cart));
-  updateCartBadge();
-  renderCartDrawer();
-}
-
-function updateCartBadge() {
-  const badge = document.getElementById('cartCountBadge');
-  if (!badge) return;
-  const totalCount = cart.reduce((sum, item) => sum + item.qty, 0);
-  badge.textContent = totalCount;
-}
-
-function changeCartItemQty(id, delta) {
-  const idx = cart.findIndex(i => i.id === id);
-  if (idx === -1) return;
-  cart[idx].qty += delta;
-  if (cart[idx].qty <= 0) {
-    cart.splice(idx, 1);
-  }
-  saveCart();
-}
-
-function removeCartItem(id) {
-  cart = cart.filter(i => i.id !== id);
-  saveCart();
-}
-
-function renderCartDrawer() {
-  const container = document.getElementById('cartItemsList');
-  if (!container) return;
-  if (cart.length === 0) {
-    container.innerHTML = `<p class="empty-cart-msg">${translations[currentLang].emptyCart}</p>`;
-    return;
-  }
-
-  container.innerHTML = cart.map(item => `
-    <div class="cart-item-row">
-      <div class="cart-item-meta">
-        <strong>${item.name}</strong>
-        <span>${item.company} | ${item.code}</span>
+      <div class="control-actions">
+        <button type="button" class="btn-action whatsapp" id="whatsappDirectBtn" title="تواصل عبر واتساب">
+          <i class="fa-brands fa-whatsapp"></i>
+        </button>
+        <button type="button" class="btn-action lang-switch" id="langBtn" title="تغيير اللغة">EN</button>
+        <button type="button" class="btn-action theme-toggle" id="themeBtn" title="الوضع الليلي">
+          <i class="fa-solid fa-moon"></i>
+        </button>
       </div>
-      <div class="cart-item-actions">
-        <div class="qty-control" style="transform: scale(0.9);">
-          <button class="qty-btn" onclick="changeCartItemQty('${item.id}', 1)">+</button>
-          <span class="qty-count">${item.qty}</span>
-          <button class="qty-btn" onclick="changeCartItemQty('${item.id}', -1)">-</button>
+
+    </div>
+  </header>
+
+  <main class="site-container main-wrapper">
+    
+    <section class="search-hero-bar">
+      <div class="search-field">
+        <input type="text" id="searchInput" placeholder="ابحث باسم المنتج، الكود، أو الشركة..." data-i18n-ph="searchPlaceholder" />
+        <i class="fa-solid fa-magnifying-glass"></i>
+      </div>
+    </section>
+
+    <div id="homeExtraSections">
+      <section class="hero-slider-section" id="offersSection">
+        <div class="swiper swiper-hero">
+          <div class="swiper-wrapper">
+            <div class="swiper-slide">
+              <div class="promo-banner banner-theme-1">
+                <div class="banner-badge-box"><i class="fa-solid fa-tag"></i></div>
+                <div class="banner-details">
+                  <h2 data-i18n="bannerTitle1">عروض كبرى العيادات</h2>
+                  <p data-i18n="bannerSubtitle1">خصومات خاصة للطلبيات المجمعة والمراكز الطبية</p>
+                  <button type="button" class="btn-cta" onclick="openOffersPage()">
+                    <span data-i18n="bannerCta">استعراض المواد</span>
+                    <i class="fa-solid fa-arrow-left arrow-icon"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div class="swiper-slide">
+              <div class="promo-banner banner-theme-2">
+                <div class="banner-badge-box"><i class="fa-solid fa-gift"></i></div>
+                <div class="banner-details">
+                  <h2 data-i18n="bannerTitle2">باقة الحشوات والترميم</h2>
+                  <p data-i18n="bannerSubtitle2">باقات مميزة من كبرى الماركات العالمية المعتمدة</p>
+                  <button type="button" class="btn-cta" onclick="filterByCategory('restoratives')">
+                    <span data-i18n="bannerCta">تصفح الباقة</span>
+                    <i class="fa-solid fa-arrow-left arrow-icon"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div class="swiper-slide">
+              <div class="promo-banner banner-theme-3">
+                <div class="banner-badge-box"><i class="fa-solid fa-percent"></i></div>
+                <div class="banner-details">
+                  <h2 data-i18n="bannerTitle3">تجهيزات التعقيم والوقاية</h2>
+                  <p data-i18n="bannerSubtitle3">حلول متكاملة لمكافحة العدوى وضمان الجودة</p>
+                  <button type="button" class="btn-cta" onclick="filterByCategory('sterilization')">
+                    <span data-i18n="bannerCta">عرض المستلزمات</span>
+                    <i class="fa-solid fa-arrow-left arrow-icon"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
-        <button class="btn-del-item" onclick="removeCartItem('${item.id}')" title="حذف">
-          <i class="fa-solid fa-trash-can"></i>
+        <div class="hero-pagination"></div>
+      </section>
+
+      <section class="catalog-block" id="brandsSection">
+        <div class="block-header">
+          <div class="block-title">
+            <span class="title-accent-bar"></span>
+            <h3 data-i18n="browseCompanies">أبرز الشركات والماركات</h3>
+          </div>
+        </div>
+        
+        <div class="swiper swiper-companies">
+          <div class="swiper-wrapper" id="companiesContainer"></div>
+        </div>
+      </section>
+
+      <section class="catalog-block" id="categoriesSection">
+        <div class="block-header">
+          <div class="block-title">
+            <span class="title-accent-bar"></span>
+            <h3 data-i18n="categoriesTitle">التصنيفات الرئيسية</h3>
+          </div>
+        </div>
+        
+        <div class="swiper swiper-categories">
+          <div class="swiper-wrapper" id="categoriesContainer"></div>
+        </div>
+      </section>
+    </div>
+
+    <section class="catalog-block" id="productsCatalogSection" style="display: none;">
+      <div class="block-header">
+        <div class="block-title">
+          <span class="title-accent-bar"></span>
+          <h3 id="catalogMainTitle" data-i18n="productsCatalogTitle">قائمة المواد والتجهيزات المتاحة</h3>
+        </div>
+      </div>
+
+      <div class="filter-status-bar" id="filterStatusBar" style="display: none;">
+        <div class="active-chips" id="activeChipsContainer"></div>
+        <button type="button" class="reset-filters-btn" id="resetFiltersBtn" data-i18n="resetFilters">
+          مسح التصفية <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div class="products-grid" id="productsGridContainer"></div>
+    </section>
+
+  </main>
+
+  <div class="cart-drawer-overlay" id="cartOverlay">
+    <div class="cart-drawer">
+      <div class="cart-header">
+        <h3><i class="fa-solid fa-cart-shopping"></i> <span data-i18n="cartTitle">قائمة الطلب الحالية</span></h3>
+        <button type="button" class="close-cart-btn" id="closeCartBtn"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <div class="cart-body" id="cartItemsList"></div>
+
+      <div class="cart-footer">
+        <button type="button" class="btn-submit-order" id="sendOrderWhatsAppBtn">
+          <i class="fa-brands fa-whatsapp"></i>
+          <span data-i18n="sendOrderBtn">إرسال الطلبية عبر واتساب</span>
         </button>
       </div>
     </div>
-  `).join('');
-}
+  </div>
 
-function sendOrderViaWhatsApp() {
-  if (cart.length === 0) {
-    alert(translations[currentLang].emptyCart);
-    return;
-  }
+  <div class="toast-notice" id="toastNotice"></div>
 
-  const phoneNumber = "963934049292";
-  
-  let msg = `*طلب تسعيرة وتوريد جديد من منصة MADA* 🩺🦷\n\n`;
-  msg += `قائمة المواد المطلوبة:\n`;
-  msg += `--------------------------------\n`;
+  <footer class="site-footer">
+    <div class="site-container footer-inner">
+      <div class="footer-brand-side">
+        <div class="footer-logo">
+          <i class="fa-solid fa-tooth"></i>
+          <span>MADA</span>
+          <span class="footer-trade-mark">® Trademark</span>
+        </div>
+        <p class="footer-copyright" data-i18n="footerRights">
+          جميع الحقوق محفوظة © 2026 MADA Dental Platform.
+        </p>
+      </div>
 
-  cart.forEach((item, index) => {
-    msg += `${index + 1}. *${item.name}*\n`;
-    msg += `   • الشركة: ${item.company}\n`;
-    msg += `   • الكود: ${item.code}\n`;
-    msg += `   • الكمية: ${item.qty}\n\n`;
-  });
+      <div class="footer-shortcut-side">
+        <i class="fa-solid fa-bolt"></i>
+        <span>Made by <a href="https://www.instagram.com/shortcut_the_official?igsh=MXRhNWV3aGJ1cGl6eA==" target="_blank" rel="noopener noreferrer" class="brand-creator-link">shortcut</a></span>
+      </div>
+    </div>
+  </footer>
 
-  msg += `--------------------------------\n`;
-  msg += `يرجى تزويدنا بتأكيد التوفر والتسعيرة المعتمدة. شكراً لكم!`;
+  <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
 
-  const encodedURL = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(msg)}`;
-  window.open(encodedURL, '_blank');
-}
-
-function showToastNotice(text) {
-  const toast = document.getElementById('toastNotice');
-  if (!toast) return;
-  toast.textContent = text;
-  toast.classList.add('show');
-  setTimeout(() => toast.classList.remove('show'), 2500);
-}
-
-/* =========================================================================
-   8. دوال التصفية والنقر التفاعلي
-   ========================================================================= */
-window.handleCompanyClick = function(brandId) {
-  filterState.company = brandId;
-  switchView('filtered');
-};
-
-window.handleCategoryClick = function(catId) {
-  filterState.category = catId;
-  switchView('filtered');
-};
-
-window.removeCompanyFilter = function() {
-  filterState.company = null;
-  if (!filterState.category && !filterState.searchQuery && !filterState.onlyOffers && !filterState.onlyNew) {
-    switchView('home');
-  } else {
-    renderProducts();
-  }
-};
-
-window.removeCategoryFilter = function() {
-  filterState.category = null;
-  if (!filterState.company && !filterState.searchQuery && !filterState.onlyOffers && !filterState.onlyNew) {
-    switchView('home');
-  } else {
-    renderProducts();
-  }
-};
-
-window.filterByCategory = function(catId) {
-  filterState.category = catId;
-  switchView('filtered');
-};
-
-window.clearSearch = function() {
-  filterState.searchQuery = "";
-  const input = document.getElementById('searchInput');
-  if (input) input.value = "";
-  if (!filterState.company && !filterState.category && !filterState.onlyOffers && !filterState.onlyNew) {
-    switchView('home');
-  } else {
-    renderProducts();
-  }
-};
-
-/* =========================================================================
-   9. تهيئة الصفحة والأحداث
-   ========================================================================= */
-document.addEventListener('DOMContentLoaded', () => {
-  initCompaniesDOM();
-  initCategoriesDOM();
-  setupAllSwipers();
-
-  const themeBtn = document.getElementById('themeBtn');
-  const langBtn = document.getElementById('langBtn');
-  const whatsappDirectBtn = document.getElementById('whatsappDirectBtn');
-  const brandLogo = document.getElementById('brandLogo');
-  const searchInput = document.getElementById('searchInput');
-  const resetFiltersBtn = document.getElementById('resetFiltersBtn');
-
-  if (resetFiltersBtn) {
-    resetFiltersBtn.onclick = function() {
-      switchView('home');
-    };
-  }
-
-  if (themeBtn) {
-    themeBtn.onclick = () => {
-      document.body.classList.toggle('dark-mode');
-      const isDark = document.body.classList.contains('dark-mode');
-      themeBtn.innerHTML = isDark ? '<i class="fa-solid fa-sun"></i>' : '<i class="fa-solid fa-moon"></i>';
-    };
-  }
-
-  if (whatsappDirectBtn) {
-    whatsappDirectBtn.onclick = () => {
-      window.open(`https://wa.me/963934049292?text=${encodeURIComponent('شكراً على الترشيح')}`, '_blank');
-    };
-  }
-
-  // درج السلة
-  const cartOverlay = document.getElementById('cartOverlay');
-  const navCartBtn = document.getElementById('navCartBtn');
-  const closeCartBtn = document.getElementById('closeCartBtn');
-  const sendOrderWhatsAppBtn = document.getElementById('sendOrderWhatsAppBtn');
-
-  if (navCartBtn && cartOverlay) {
-    navCartBtn.onclick = () => {
-      renderCartDrawer();
-      cartOverlay.classList.add('open');
-    };
-  }
-
-  if (closeCartBtn && cartOverlay) {
-    closeCartBtn.onclick = () => cartOverlay.classList.remove('open');
-  }
-
-  if (cartOverlay) {
-    cartOverlay.onclick = (e) => {
-      if (e.target === cartOverlay) cartOverlay.classList.remove('open');
-    };
-  }
-
-  if (sendOrderWhatsAppBtn) {
-    sendOrderWhatsAppBtn.onclick = sendOrderViaWhatsApp;
-  }
-
-  // أزرار الهيدر
-  const navHomeBtn = document.getElementById('navHomeBtn');
-  const navOffersBtn = document.getElementById('navOffersBtn');
-  const navNewBtn = document.getElementById('navNewBtn');
-
-  if (navHomeBtn) navHomeBtn.onclick = () => switchView('home');
-  if (navOffersBtn) navOffersBtn.onclick = () => switchView('offers');
-  if (navNewBtn) navNewBtn.onclick = () => switchView('new-arrivals');
-  if (brandLogo) brandLogo.onclick = () => switchView('home');
-
-  // البحث اللحظي
-  let searchTimeout;
-  if (searchInput) {
-    searchInput.oninput = (e) => {
-      clearTimeout(searchTimeout);
-      searchTimeout = setTimeout(() => {
-        filterState.searchQuery = e.target.value;
-        if (filterState.searchQuery.trim() !== '') {
-          switchView('filtered');
-        } else if (!filterState.company && !filterState.category && !filterState.onlyOffers && !filterState.onlyNew) {
-          switchView('home');
-        }
-      }, 300);
-    };
-  }
-
-  // تبديل اللغة
-  if (langBtn) {
-    langBtn.onclick = () => {
-      currentLang = currentLang === 'ar' ? 'en' : 'ar';
-      document.documentElement.setAttribute('dir', currentLang === 'ar' ? 'rtl' : 'ltr');
-      document.documentElement.setAttribute('lang', currentLang);
-      langBtn.textContent = currentLang === 'ar' ? 'EN' : 'AR';
-
-      document.querySelectorAll('[data-i18n]').forEach(el => {
-        const k = el.getAttribute('data-i18n');
-        if (translations[currentLang][k]) el.textContent = translations[currentLang][k];
-      });
-
-      document.querySelectorAll('[data-i18n-ph]').forEach(el => {
-        const k = el.getAttribute('data-i18n-ph');
-        if (translations[currentLang][k]) el.setAttribute('placeholder', translations[currentLang][k]);
-      });
-
-      initCategoriesDOM();
-      
-      const mainTitleEl = document.getElementById('catalogMainTitle');
-      if (currentView === 'offers' && mainTitleEl) {
-        mainTitleEl.textContent = translations[currentLang].productsOffersTitle;
-      } else if (currentView === 'new-arrivals' && mainTitleEl) {
-        mainTitleEl.textContent = translations[currentLang].productsNewTitle;
-      } else if (mainTitleEl) {
-        mainTitleEl.textContent = translations[currentLang].productsCatalogTitle;
-      }
-
-      if (currentView !== 'home') {
-        renderProducts();
-      }
-
-      setTimeout(() => {
-        setupAllSwipers();
-      }, 50);
-    };
-  }
-
-  updateCartBadge();
-  switchView('home'); // بدء التشغيل بالصفحة الرئيسية بدون عرض المنتجات
-});
+  <script src="code.js"></script>
+</body>
+</html>
