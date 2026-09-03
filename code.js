@@ -769,7 +769,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   if (whatsappDirectBtn) {
     whatsappDirectBtn.onclick = () => {
-      window.open(`https://wa.me/${targetWhatsAppNumber}?text=${encodeURIComponent('مرحباً SMG، أود الاستفسار عن المواد الطبية المتاحة.')}`, '_blank');
+      window.open(`https://wa.me/${targetWhatsAppNumber}?text=${encodeURIComponent('السلام عليكم و رحمة الله و بركاته')}`, '_blank');
     };
   }
 
