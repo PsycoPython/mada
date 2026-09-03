@@ -1,8 +1,9 @@
 /* =========================================================================
    1. إعدادات الخادم والـ API
    ========================================================================= */
-const API_BASE_URL = "http://localhost:5000"; 
-let targetWhatsAppNumber = "963934049292";
+const API_BASE_URL = "http://localhost:5000"; // استبدله برابط الخادم الفعلي
+
+let targetWhatsAppNumber = "963985083231";
 
 async function apiGet(endpoint) {
   try {
@@ -10,7 +11,7 @@ async function apiGet(endpoint) {
     if (!res.ok) throw new Error(`HTTP Error: ${res.status}`);
     return await res.json();
   } catch (err) {
-    console.warn(`[API] تعذر الوصول إلى ${endpoint}، سيتم استخدام البيانات المحلية.`);
+    console.error(`[API Error] Failed to GET ${endpoint}:`, err);
     return null;
   }
 }
@@ -24,45 +25,13 @@ async function apiPost(endpoint, bodyData) {
     });
     return res.ok;
   } catch (err) {
-    console.warn(`[API] فشل إرسال الطلب إلى ${endpoint}:`, err);
+    console.error(`[API Error] Failed to POST ${endpoint}:`, err);
     return false;
   }
 }
 
 /* =========================================================================
-   2. بيانات احتياطية محلية (Fallback Data) تدعم التوسع لأي عدد
-   ========================================================================= */
-const FALLBACK_BANNERS = [
-  { Title: "عروض كبرى العيادات", Subtitle: "خصومات خاصة للطلبيات المجمعة", ImageUrl: null, Action: "openOffersPage()" },
-  { Title: "باقة الحشوات والترميم", Subtitle: "باقات مميزة من كبرى الماركات العالمية", ImageUrl: null, Action: "filterByCategory(1)" },
-  { Title: "تجهيزات التعقيم والوقاية", Subtitle: "حلول متكاملة لمكافحة العدوى", ImageUrl: null, Action: "filterByCategory(4)" },
-  { Title: "أحدث التقنيات السنية", Subtitle: "مواد متطورة لنتائج أدق", ImageUrl: null, Action: "switchView('new-arrivals')" }
-];
-
-const FALLBACK_BRANDS = [
-  { Id: 1, Name: "3M ESPE", LogoUrl: null },
-  { Id: 2, Name: "Dentsply Sirona", LogoUrl: null },
-  { Id: 3, Name: "Kerr Dental", LogoUrl: null },
-  { Id: 4, Name: "Ivoclar Vivadent", LogoUrl: null },
-  { Id: 5, Name: "Septodont", LogoUrl: null },
-  { Id: 6, Name: "GC America", LogoUrl: null },
-  { Id: 7, Name: "Ultradent", LogoUrl: null },
-  { Id: 8, Name: "Coltene", LogoUrl: null }
-];
-
-const FALLBACK_CATEGORIES = [
-  { Id: 1, Name: "مواد الترميم والحشوات", ImageUrl: null },
-  { Id: 2, Name: "علاج الجذور والأعصاب", ImageUrl: null },
-  { Id: 3, Name: "مواد الطبعات والسيليكون", ImageUrl: null },
-  { Id: 4, Name: "التعقيم ومكافحة العدوى", ImageUrl: null },
-  { Id: 5, Name: "التخدير والإبر الجراحية", ImageUrl: null },
-  { Id: 6, Name: "أجهزة ومعدات العيادات", ImageUrl: null },
-  { Id: 7, Name: "السنابل وأدوات الحفر", ImageUrl: null },
-  { Id: 8, Name: "المستهلكات اليومية", ImageUrl: null }
-];
-
-/* =========================================================================
-   3. إدارة الحالة والترجمات
+   2. إدارة الحالة والترجمات (State Management)
    ========================================================================= */
 let currentView = 'home'; 
 
@@ -152,7 +121,7 @@ const translations = {
 };
 
 /* =========================================================================
-   4. دوال تحميل البيانات من الـ API ورسم الـ View All
+   3. دوال تحميل البيانات من الـ API (Pure API Data)
    ========================================================================= */
 
 async function loadSiteSettings() {
@@ -163,11 +132,18 @@ async function loadSiteSettings() {
 }
 
 async function loadBanners() {
-  const apiBanners = await apiGet('/api/Banners?onlyActive=true');
-  const banners = (apiBanners && apiBanners.length > 0) ? apiBanners : FALLBACK_BANNERS;
-
+  const banners = await apiGet('/api/Banners?onlyActive=true') || [];
   const swiperWrapper = document.getElementById('heroBannersWrapper');
-  if (!swiperWrapper) return;
+  const section = document.getElementById('offersSection');
+  
+  if (!swiperWrapper || !section) return;
+
+  // إخفاء قسم البانرات إذا لم توجد بانرات نشطة
+  if (banners.length === 0) {
+    section.style.display = 'none';
+    return;
+  }
+  section.style.display = 'block';
 
   swiperWrapper.innerHTML = banners.map((b, idx) => `
     <div class="swiper-slide">
@@ -176,9 +152,9 @@ async function loadBanners() {
           ${b.ImageUrl ? `<img src="${b.ImageUrl}" alt="${b.Title || ''}" style="max-width:85%;max-height:85%;">` : '<i class="fa-solid fa-tag"></i>'}
         </div>
         <div class="banner-details">
-          <h2>${b.Title}</h2>
+          <h2>${b.Title || 'عرض خاص'}</h2>
           <p>${b.Subtitle || 'تجهيزات وعروض حصرية من SMG'}</p>
-          <button type="button" class="btn-cta" onclick="${b.Action || 'openOffersPage()'}">
+          <button type="button" class="btn-cta" onclick="openOffersPage()">
             <span>${translations[currentLang].bannerCta}</span>
             <i class="fa-solid fa-arrow-left arrow-icon"></i>
           </button>
@@ -191,11 +167,17 @@ async function loadBanners() {
 }
 
 async function loadManufacturers() {
-  const data = await apiGet('/api/Manufacturers');
-  loadedManufacturersData = data || FALLBACK_BRANDS;
+  loadedManufacturersData = await apiGet('/api/Manufacturers') || [];
   
   const container = document.getElementById('companiesContainer');
-  if (!container) return;
+  const section = document.getElementById('brandsSection');
+  if (!container || !section) return;
+
+  if (loadedManufacturersData.length === 0) {
+    section.style.display = 'none';
+    return;
+  }
+  section.style.display = 'block';
 
   container.innerHTML = loadedManufacturersData.map(m => `
     <div class="swiper-slide">
@@ -213,11 +195,17 @@ async function loadManufacturers() {
 
 async function loadCategories() {
   const endpoint = filterState.company ? `/api/Categories?manufacturerId=${filterState.company}` : '/api/Categories';
-  const data = await apiGet(endpoint);
-  loadedCategoriesData = data || FALLBACK_CATEGORIES;
+  loadedCategoriesData = await apiGet(endpoint) || [];
   
   const container = document.getElementById('categoriesContainer');
-  if (!container) return;
+  const section = document.getElementById('categoriesSection');
+  if (!container || !section) return;
+
+  if (loadedCategoriesData.length === 0) {
+    section.style.display = 'none';
+    return;
+  }
+  section.style.display = 'block';
 
   container.innerHTML = loadedCategoriesData.map(c => `
     <div class="swiper-slide">
@@ -283,7 +271,7 @@ async function fetchProductsFromAPI() {
 }
 
 /* =========================================================================
-   5. إدارة الواجهات والتنقل (View Controller)
+   4. إدارة الواجهات والتنقل (View Controller)
    ========================================================================= */
 function switchView(viewName) {
   currentView = viewName;
@@ -303,7 +291,7 @@ function switchView(viewName) {
   if (cartPageSection) cartPageSection.style.display = 'none';
   if (allCompaniesSection) allCompaniesSection.style.display = 'none';
   if (allCategoriesSection) allCategoriesSection.style.display = 'none';
-  if (searchBar) searchBar.style.display = 'block'; // شريط البحث يظهر في المعظم
+  if (searchBar) searchBar.style.display = 'block';
 
   if (viewName === 'home') {
     document.getElementById('navHomeBtn').classList.add('active');
@@ -375,7 +363,7 @@ window.openOffersPage = function() {
 };
 
 /* =========================================================================
-   6. تهيئة Swipers
+   5. تهيئة Swipers
    ========================================================================= */
 const manualSwiperOptions = {
   loop: false,
@@ -412,7 +400,7 @@ function setupAllSwipers() {
 }
 
 /* =========================================================================
-   7. دوال العرض ورسم كروت المنتجات
+   6. دوال العرض ورسم كروت المنتجات
    ========================================================================= */
 function updateEntitySelectedUI() {
   document.querySelectorAll('[data-company-id]').forEach(el => {
@@ -532,7 +520,7 @@ async function renderProducts() {
 }
 
 /* =========================================================================
-   8. إدارة السلة وتوليد الطلب
+   7. إدارة السلة وتوليد الطلب
    ========================================================================= */
 window.updateCardQty = function(productId, delta) {
   const el = document.getElementById(`qty-${productId}`);
@@ -654,6 +642,11 @@ window.sendOrderViaWhatsApp = async function() {
     return;
   }
 
+  const btn = document.querySelector('.btn-send-whatsapp-order');
+  const originalBtnHTML = btn.innerHTML;
+  btn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin" style="font-size: 20px;"></i> <span>جاري تسجيل الطلب...</span>`;
+  btn.disabled = true;
+
   const orderPayload = {
     Items: cart.map(item => ({
       ProductId: item.id,
@@ -661,10 +654,10 @@ window.sendOrderViaWhatsApp = async function() {
       Name: item.name,
       Quantity: item.qty
     })),
-    Notes: "طلب مرسل من الموقع عبر الواتساب"
+    Notes: "طلب مرسل من المنصة لتأكيد التسعيرة عبر الواتساب"
   };
   
-  apiPost('/api/Orders/whatsapp', orderPayload);
+  const isSuccess = await apiPost('/api/Orders/whatsapp', orderPayload);
 
   let msg = `*طلب تسعيرة وتوريد جديد من Smart Medical Group (SMG)* 🩺🦷\n\n`;
   msg += `قائمة المواد والتجهيزات المطلوبة:\n`;
@@ -680,8 +673,19 @@ window.sendOrderViaWhatsApp = async function() {
   msg += `--------------------------------\n`;
   msg += `يرجى تزويدنا بتأكيد التوفر والتسعيرة المعتمدة. شكراً لكم!`;
 
+  btn.innerHTML = originalBtnHTML;
+  btn.disabled = false;
+
   const encodedURL = `https://wa.me/${targetWhatsAppNumber}?text=${encodeURIComponent(msg)}`;
   window.open(encodedURL, '_blank');
+
+  if (isSuccess) {
+    cart = [];
+    saveCart();
+    showToastNotice(currentLang === 'ar' ? "تم تسجيل طلبك بنجاح وتحويلك للواتساب" : "Order submitted successfully!");
+  } else {
+    showToastNotice(currentLang === 'ar' ? "تم تحويلك للواتساب، لكن حدث خطأ في النظام الداخلي." : "Redirected to WhatsApp, but internal sync failed.");
+  }
 };
 
 function showToastNotice(text) {
@@ -693,7 +697,7 @@ function showToastNotice(text) {
 }
 
 /* =========================================================================
-   9. دوال التصفية والنقر
+   8. دوال التصفية والنقر
    ========================================================================= */
 window.handleCompanyClick = function(brandId) {
   filterState.company = brandId;
@@ -735,12 +739,11 @@ window.clearSearch = function() {
 };
 
 /* =========================================================================
-   10. تهيئة الصفحة والأحداث
+   9. تهيئة الصفحة والأحداث
    ========================================================================= */
 document.addEventListener('DOMContentLoaded', async () => {
   setupAllSwipers();
 
-  // تحميل البيانات
   await loadSiteSettings();
   await loadBanners();
   await loadManufacturers();
