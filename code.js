@@ -121,7 +121,7 @@ const translations = {
 };
 
 /* =========================================================================
-   3. دوال تحميل البيانات من الـ API (Pure API Data)
+   3. دوال تحميل البيانات من الـ API
    ========================================================================= */
 
 async function loadSiteSettings() {
@@ -138,7 +138,6 @@ async function loadBanners() {
   
   if (!swiperWrapper || !section) return;
 
-  // إخفاء قسم البانرات إذا لم توجد بانرات نشطة
   if (banners.length === 0) {
     section.style.display = 'none';
     return;
@@ -285,7 +284,6 @@ function switchView(viewName) {
 
   document.querySelectorAll('.main-navigation .nav-tab-btn').forEach(btn => btn.classList.remove('active'));
 
-  // إخفاء عام لجميع الأقسام الفرعية أولاً
   if (homeSections) homeSections.style.display = 'none';
   if (catalogSection) catalogSection.style.display = 'none';
   if (cartPageSection) cartPageSection.style.display = 'none';
@@ -636,6 +634,7 @@ function renderCartPage() {
   `;
 }
 
+// دالة إرسال الطلب وحفظه في لوحة التحكم
 window.sendOrderViaWhatsApp = async function() {
   if (cart.length === 0) {
     alert(translations[currentLang].emptyCart);
@@ -684,7 +683,7 @@ window.sendOrderViaWhatsApp = async function() {
     saveCart();
     showToastNotice(currentLang === 'ar' ? "تم تسجيل طلبك بنجاح وتحويلك للواتساب" : "Order submitted successfully!");
   } else {
-    showToastNotice(currentLang === 'ar' ? "تم تحويلك للواتساب، لكن حدث خطأ في النظام الداخلي." : "Redirected to WhatsApp, but internal sync failed.");
+    showToastNotice(currentLang === 'ar' ? "تم تحويلك للواتساب، لكن حدث خطأ في المزامنة الداخلية." : "Redirected to WhatsApp, but internal sync failed.");
   }
 };
 
