@@ -1,5 +1,7 @@
+/* =========================================================================
+   1. المتغيرات ونظام الألوان (Theme & Variables)
+   ========================================================================= */
 :root {
-  /* ألوان طبية عصرية ومريحة للعين */
   --bg-gradient: linear-gradient(180deg, #f0f7f6 0%, #f7faf9 40%, #ffffff 100%);
   --surface-white: #ffffff;
   --surface-card: #ffffff;
@@ -16,7 +18,6 @@
   --shadow-soft: 0 4px 18px rgba(13, 130, 125, 0.05);
   --shadow-hover: 0 10px 24px rgba(13, 130, 125, 0.12);
   --radius-card: 16px;
-  --radius-pill: 50px;
   
   --footer-bg: #0c1819;
   --footer-text: #8ea8a6;
@@ -86,7 +87,7 @@ html[dir="ltr"] .arrow-icon { transform: scaleX(-1); }
 }
 
 /* =========================================================================
-   الهيدر وشريط التنقل الرئيسي
+   2. الهيدر وشريط التنقل (Header & Navigation)
    ========================================================================= */
 .site-header {
   width: 100%;
@@ -232,7 +233,7 @@ body.dark-mode .nav-tab-btn.active { color: #091315; }
 .btn-action.whatsapp { color: #25d366; font-size: 19px; }
 
 /* =========================================================================
-   محتوى الصفحة والبحث
+   3. الحاوية الرئيسية وشريط البحث (Search Bar)
    ========================================================================= */
 .main-wrapper {
   flex: 1;
@@ -278,7 +279,7 @@ body.dark-mode .nav-tab-btn.active { color: #091315; }
 .search-field i { color: var(--text-muted); font-size: 16px; }
 
 /* =========================================================================
-   البانر الترويجي وسلايدر العروض
+   4. البانر الترويجي (Promo Slider)
    ========================================================================= */
 .hero-slider-section {
   width: 100%;
@@ -373,7 +374,7 @@ html[dir="ltr"] .banner-details { text-align: left; }
 }
 
 /* =========================================================================
-   عناوين الأقسام والشركات
+   5. الشركات والتصنيفات (Brands & Categories)
    ========================================================================= */
 .catalog-block {
   margin-bottom: 30px;
@@ -486,19 +487,18 @@ html[dir="ltr"] .banner-details { text-align: left; }
 }
 
 /* =========================================================================
-   شريط حالة التصفية (Filter Status Bar)
+   6. شريط الفلاتر والمواد المحددة (Filter Status Bar)
    ========================================================================= */
 .filter-status-bar {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: var(--surface-white);
-  border: 1px solid var(--border-card);
+  background: var(--surface-card);
+  border: 1px solid var(--border-subtle);
   border-radius: 12px;
-  padding: 8px 16px;
-  margin-bottom: 20px;
+  padding: 10px 16px;
+  margin-bottom: 22px;
   box-shadow: var(--shadow-soft);
-  gap: 10px;
 }
 
 .active-chips {
@@ -511,76 +511,84 @@ html[dir="ltr"] .banner-details { text-align: left; }
 .chip {
   background: var(--surface-icon);
   color: var(--primary-dark);
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 700;
-  padding: 4px 10px;
-  border-radius: 6px;
+  padding: 6px 12px;
+  border-radius: 8px;
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   border: 1px solid rgba(13, 130, 125, 0.15);
 }
 
-.chip i { cursor: pointer; color: var(--text-muted); }
-.chip i:hover { color: #dc2626; }
+.chip i { 
+  cursor: pointer; 
+  color: var(--text-muted);
+}
+.chip i:hover { color: #ef4444; }
 
 .reset-filters-btn {
-  background: rgba(249, 115, 22, 0.08);
-  border: 1px solid rgba(249, 115, 22, 0.2);
-  color: var(--accent-orange);
+  background: rgba(239, 68, 68, 0.08);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  color: #ef4444;
   font-size: 12.5px;
   font-weight: 700;
-  padding: 5px 12px;
+  padding: 6px 14px;
   border-radius: 8px;
   cursor: pointer;
   transition: 0.2s;
 }
 
 .reset-filters-btn:hover {
-  background: var(--accent-orange);
+  background: #ef4444;
   color: #ffffff;
 }
 
 /* =========================================================================
-   شبكة المنتجات وكروت المواد (تحسين الحجم والمظهر)
+   7. شبكة وكروت المنتجات الملمومة (Fixed Compact Products Grid)
    ========================================================================= */
+#productsGridContainer,
 .products-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 310px));
-  justify-content: start;
-  gap: 16px;
-  margin-bottom: 40px;
-  width: 100%;
+  display: grid !important;
+  /* حجم محدد وأنيق لكل كرت لمنع التمدد غير الطبيعي */
+  grid-template-columns: repeat(auto-fill, minmax(250px, 290px)) !important;
+  /* منع تمدد الصفوف عمودياً لارتفاع الصفحة */
+  grid-auto-rows: max-content !important;
+  align-items: start !important;
+  justify-content: start !important;
+  gap: 20px !important;
+  margin-bottom: 40px !important;
+  width: 100% !important;
 }
 
 .product-card {
-  width: 100%;
+  width: 100% !important;
+  max-width: 300px !important;
+  height: auto !important;
+  min-height: auto !important;
   background: var(--surface-card);
-  border: 1px solid var(--border-card);
-  border-radius: var(--radius-card);
+  border: 1.5px solid var(--border-subtle);
+  border-radius: 16px;
   padding: 16px;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-  box-shadow: var(--shadow-soft);
+  box-shadow: 0 4px 14px rgba(13, 130, 125, 0.05);
   box-sizing: border-box;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  min-height: 180px; /* منع التمدد الزائد */
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
 }
 
 .product-card:hover {
   transform: translateY(-3px);
   border-color: var(--primary);
-  box-shadow: var(--shadow-hover);
+  box-shadow: 0 8px 20px rgba(13, 130, 125, 0.12);
 }
 
 .product-head {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 12px;
+  margin-bottom: 14px;
   gap: 6px;
-  flex-wrap: wrap;
 }
 
 .product-company {
@@ -591,35 +599,32 @@ html[dir="ltr"] .banner-details { text-align: left; }
   font-weight: 700;
   color: var(--primary);
   background: var(--surface-icon);
-  padding: 3px 8px;
-  border-radius: 6px;
+  padding: 4px 10px;
+  border-radius: 8px;
   white-space: nowrap;
 }
 
 .product-badge {
   font-size: 11px;
   font-weight: 800;
-  padding: 3px 8px;
+  padding: 4px 8px;
   border-radius: 6px;
   white-space: nowrap;
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
 }
 
-.badge-new { background: #e0f2fe; color: #0369a1; border: 1px solid rgba(3, 105, 161, 0.15); }
-.badge-offer { background: #fee2e2; color: #b91c1c; border: 1px solid rgba(185, 28, 28, 0.15); }
+.badge-new { background: #e0f2fe; color: #0284c7; }
+.badge-offer { background: #fee2e2; color: #dc2626; }
 
 .product-info {
-  margin-bottom: 14px;
+  margin-bottom: 16px;
 }
 
 .product-info h4 {
-  font-size: 15px;
+  font-size: 16px;
   font-weight: 800;
   color: var(--text-main);
   margin-bottom: 6px;
-  line-height: 1.4;
+  line-height: 1.35;
 }
 
 .product-code {
@@ -627,41 +632,41 @@ html[dir="ltr"] .banner-details { text-align: left; }
   color: var(--text-muted);
   font-weight: 600;
   display: inline-block;
-  background: rgba(0, 0, 0, 0.03);
-  padding: 2px 6px;
-  border-radius: 4px;
+  background: rgba(0, 0, 0, 0.04);
+  padding: 2px 8px;
+  border-radius: 6px;
   direction: ltr;
 }
 
 body.dark-mode .product-code {
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.06);
 }
 
 .product-action-row {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding-top: 12px;
+  gap: 10px;
+  padding-top: 14px;
   border-top: 1px solid var(--border-subtle);
+  margin-top: auto; /* دفع عناصر الشراء للأسفل تلقائياً */
 }
 
 .qty-control {
   display: flex;
   align-items: center;
   background: var(--surface-icon);
-  border: 1px solid rgba(13, 130, 125, 0.15);
-  border-radius: 8px;
+  border-radius: 10px;
   overflow: hidden;
-  height: 34px;
+  height: 38px;
   flex-shrink: 0;
 }
 
 .qty-btn {
   background: transparent;
   border: none;
-  width: 28px;
+  width: 32px;
   height: 100%;
-  font-size: 15px;
+  font-size: 16px;
   font-weight: 800;
   color: var(--primary);
   cursor: pointer;
@@ -676,9 +681,9 @@ body.dark-mode .product-code {
 }
 
 .qty-count {
-  width: 26px;
+  width: 28px;
   text-align: center;
-  font-size: 13.5px;
+  font-size: 14px;
   font-weight: 800;
   color: var(--text-main);
 }
@@ -688,18 +693,18 @@ body.dark-mode .product-code {
   background: var(--primary);
   color: #ffffff;
   border: none;
-  height: 34px;
-  border-radius: 8px;
-  font-size: 12.5px;
+  height: 38px;
+  border-radius: 10px;
+  font-size: 13px;
   font-weight: 700;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
+  gap: 8px;
   white-space: nowrap;
   transition: all 0.2s ease;
-  box-shadow: 0 2px 8px rgba(13, 130, 125, 0.2);
+  box-shadow: 0 3px 10px rgba(13, 130, 125, 0.2);
 }
 
 .btn-add-cart:hover {
@@ -712,7 +717,7 @@ body.dark-mode .btn-add-cart {
 }
 
 /* =========================================================================
-   صفحة السلة وإدارة الطلب
+   8. صفحة السلة وملخص الطلب (Cart Page)
    ========================================================================= */
 .cart-page-section {
   width: 100%;
@@ -908,7 +913,7 @@ body.dark-mode .btn-add-cart {
 }
 
 /* =========================================================================
-   التنبيهات والفوتر
+   9. التنبيهات والفوتر (Toast & Footer)
    ========================================================================= */
 .toast-notice {
   position: fixed;
@@ -988,11 +993,11 @@ body.dark-mode .btn-add-cart {
 .footer-shortcut-side i { color: var(--accent-orange); }
 
 /* =========================================================================
-   التجاوب مع الشاشات (Responsive Media Queries)
+   10. التجاوب مع مختلف الشاشات (Responsive)
    ========================================================================= */
 @media (max-width: 992px) {
   .cart-page-layout { grid-template-columns: 1fr; }
-  .products-grid { justify-content: center; }
+  #productsGridContainer, .products-grid { justify-content: center !important; }
 }
 
 @media (max-width: 768px) {
@@ -1023,12 +1028,12 @@ body.dark-mode .btn-add-cart {
   .entity-icon { width: 44px; height: 44px; font-size: 18px; }
   .entity-card { padding: 10px 6px; }
 
-  .products-grid {
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-    gap: 10px;
+  #productsGridContainer, .products-grid {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)) !important;
+    gap: 12px !important;
   }
   
-  .product-card { padding: 12px; }
+  .product-card { padding: 12px !important; }
   .product-info h4 { font-size: 13.5px; }
 
   .cart-page-item {
