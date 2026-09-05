@@ -1053,3 +1053,95 @@ body.dark-mode .btn-add-cart {
   }
   .footer-logo { justify-content: center; }
 }
+/* =========================================================================
+   الحل الحاسم لشكل وحجم كروت المنتجات
+   ========================================================================= */
+
+/* جعل الحاوية ترتب الكروت بجانب بعضها بحجمها الطبيعي بدون أي تمدد */
+#productsGridContainer,
+.products-grid {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 16px !important;
+  justify-content: flex-start !important;
+  align-items: flex-start !important;
+  margin-bottom: 40px !important;
+  width: 100% !important;
+}
+
+/* ضبط حجم الكرت ليكون ملموماً وأنيقاً بارتفاع محدد ومناسب */
+.product-card {
+  width: 270px !important;
+  max-width: 270px !important;
+  height: auto !important;
+  min-height: unset !important;
+  max-height: fit-content !important;
+  background: var(--surface-card) !important;
+  border: 1px solid var(--border-subtle) !important;
+  border-radius: 14px !important;
+  padding: 14px 16px !important;
+  box-shadow: 0 4px 14px rgba(13, 130, 125, 0.06) !important;
+  box-sizing: border-box !important;
+  margin: 0 !important;
+}
+
+/* تنسيق رأس الكرت (الشركة والشارات) */
+.product-head {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  margin-bottom: 10px !important;
+}
+
+/* تنسيق عنوان المنتج والكود تحت الرأس مباشرة دون أي فراغ أبيض */
+.product-info {
+  margin-bottom: 14px !important;
+}
+
+.product-info h4 {
+  font-size: 15px !important;
+  font-weight: 800 !important;
+  color: var(--text-main) !important;
+  margin-bottom: 4px !important;
+  line-height: 1.35 !important;
+}
+
+.product-code {
+  font-size: 11px !important;
+  color: var(--text-muted) !important;
+  background: rgba(0, 0, 0, 0.04) !important;
+  padding: 2px 6px !important;
+  border-radius: 4px !important;
+  display: inline-block !important;
+}
+
+/* صف أزرار الشراء ملتصق بأسفل المحتوى مباشرة */
+.product-action-row {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  padding-top: 10px !important;
+  border-top: 1px solid var(--border-subtle) !important;
+}
+
+.qty-control {
+  height: 34px !important;
+  border-radius: 8px !important;
+}
+
+.qty-btn {
+  width: 28px !important;
+  font-size: 15px !important;
+}
+
+.qty-count {
+  width: 24px !important;
+  font-size: 13px !important;
+}
+
+.btn-add-cart {
+  height: 34px !important;
+  font-size: 12.5px !important;
+  border-radius: 8px !important;
+  padding: 0 10px !important;
+}
