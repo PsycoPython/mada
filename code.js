@@ -271,7 +271,10 @@ async function fetchProductsFromAPI() {
 /* =========================================================================
    4. إدارة الواجهات والتنقل (View Controller)
    ========================================================================= */
-function switchView(viewName) {
+/* =========================================================================
+   4. إدارة الواجهات والتنقل (View Controller)
+   ========================================================================= */
+async function switchView(viewName) {
   currentView = viewName;
   const homeSections = document.getElementById('homeExtraSections');
   const catalogSection = document.getElementById('productsCatalogSection');
@@ -301,6 +304,9 @@ function switchView(viewName) {
     filterState.searchQuery = "";
     const searchInp = document.getElementById('searchInput');
     if (searchInp) searchInp.value = "";
+
+    // إعادة جلب كافة التصنيفات العامة عند العودة للرئيسية
+    await loadCategories();
 
     updateEntitySelectedUI();
 
@@ -354,7 +360,6 @@ function switchView(viewName) {
 
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
-
 window.openOffersPage = function() {
   switchView('offers');
 };
