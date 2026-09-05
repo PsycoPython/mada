@@ -161,7 +161,15 @@ async function loadBanners() {
     </div>
   `).join('');
 
-  if (swiperHeroInstance) swiperHeroInstance.update();
+  if (swiperHeroInstance) swiperHeroInstance.destroy(true, true);
+  swiperHeroInstance = new Swiper('.swiper-hero', {
+    loop: true,
+    speed: 600,
+    observer: true,
+    observeParents: true,
+    autoplay: { delay: 4500, disableOnInteraction: false, pauseOnMouseEnter: true },
+    pagination: { el: '.hero-pagination', clickable: true }
+  });
 }
 
 async function loadManufacturers() {
@@ -188,7 +196,8 @@ async function loadManufacturers() {
     </div>
   `).join('');
 
-  if (swiperCompaniesInstance) swiperCompaniesInstance.update();
+  if (swiperCompaniesInstance) swiperCompaniesInstance.destroy(true, true);
+  swiperCompaniesInstance = new Swiper('.swiper-companies', manualSwiperOptions);
 }
 
 async function loadCategories() {
@@ -216,7 +225,8 @@ async function loadCategories() {
     </div>
   `).join('');
 
-  if (swiperCategoriesInstance) swiperCategoriesInstance.update();
+  if (swiperCategoriesInstance) swiperCategoriesInstance.destroy(true, true);
+  swiperCategoriesInstance = new Swiper('.swiper-categories', manualSwiperOptions);
 }
 
 function renderAllCompaniesPage() {
@@ -271,9 +281,6 @@ async function fetchProductsFromAPI() {
 /* =========================================================================
    4. إدارة الواجهات والتنقل (View Controller)
    ========================================================================= */
-/* =========================================================================
-   4. إدارة الواجهات والتنقل (View Controller)
-   ========================================================================= */
 async function switchView(viewName) {
   currentView = viewName;
   const homeSections = document.getElementById('homeExtraSections');
@@ -305,16 +312,8 @@ async function switchView(viewName) {
     const searchInp = document.getElementById('searchInput');
     if (searchInp) searchInp.value = "";
 
-    // إعادة جلب كافة التصنيفات العامة عند العودة للرئيسية
     await loadCategories();
-
     updateEntitySelectedUI();
-
-    setTimeout(() => {
-      if (swiperHeroInstance) swiperHeroInstance.update();
-      if (swiperCompaniesInstance) swiperCompaniesInstance.update();
-      if (swiperCategoriesInstance) swiperCategoriesInstance.update();
-    }, 50);
 
   } else if (viewName === 'offers') {
     document.getElementById('navOffersBtn').classList.add('active');
@@ -360,6 +359,7 @@ async function switchView(viewName) {
 
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
+
 window.openOffersPage = function() {
   switchView('offers');
 };
@@ -384,21 +384,9 @@ const manualSwiperOptions = {
 };
 
 function setupAllSwipers() {
-  if (swiperHeroInstance) swiperHeroInstance.destroy(true, true);
-  if (swiperCompaniesInstance) swiperCompaniesInstance.destroy(true, true);
-  if (swiperCategoriesInstance) swiperCategoriesInstance.destroy(true, true);
-
-  swiperHeroInstance = new Swiper('.swiper-hero', {
-    loop: true,
-    speed: 600,
-    observer: true,
-    observeParents: true,
-    autoplay: { delay: 4500, disableOnInteraction: false, pauseOnMouseEnter: true },
-    pagination: { el: '.hero-pagination', clickable: true }
-  });
-
-  swiperCompaniesInstance = new Swiper('.swiper-companies', manualSwiperOptions);
-  swiperCategoriesInstance = new Swiper('.swiper-categories', manualSwiperOptions);
+  loadBanners();
+  loadManufacturers();
+  loadCategories();
 }
 
 /* =========================================================================
@@ -653,7 +641,6 @@ function renderCartPage() {
   `;
 }
 
-// دالة إرسال الطلب وحفظه في لوحة التحكم
 window.sendOrderViaWhatsApp = async function() {
   if (cart.length === 0) {
     alert(translations[currentLang].emptyCart);
