@@ -1,11 +1,9 @@
 /* =========================================================================
-   1. إعدادات الخادم والـ API
+   1. إعدادات الخادم والـ API (وفقاً لمواصفات Swagger MadaProject v1.0)
    ========================================================================= */
-// جعل الرابط الأساسي خالياً من /api لتجنب التكرار، أو توحيد المسارات
 const API_BASE_URL = "http://smg.runasp.net/api"; 
 let targetWhatsAppNumber = "963985083231";
 
-// معالجة الرابط تلقائياً لمنع تكرار /api/
 function formatEndpoint(endpoint) {
   const cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
   if (cleanEndpoint.startsWith('/api/')) {
@@ -60,16 +58,16 @@ let swiperCategoriesInstance = null;
 
 let loadedManufacturersData = [];
 let loadedCategoriesData = [];
-let loadedProductsMap = new Map(); // لتخزين كائنات المنتجات ومنع ثغرات الحقن في الـ HTML
+let loadedProductsMap = new Map();
 
-// قراءة السلة بأمان لمنع الانهيار
+// تحميل السلة من التخزين المحلي بأمان
 let cart = [];
 try {
   const savedCart = localStorage.getItem('smg_b2b_cart');
   cart = savedCart ? JSON.parse(savedCart) : [];
   if (!Array.isArray(cart)) cart = [];
 } catch (e) {
-  console.warn('Failed to parse cart from localStorage, initializing empty cart.', e);
+  console.warn('Invalid cart in localStorage, resetting to empty array.');
   cart = [];
 }
 
@@ -142,10 +140,6 @@ const translations = {
   }
 };
 
-/* =========================================================================
-   3. دوال مساعدة وتحميل البيانات
-   ========================================================================= */
-
 function escapeHTML(str) {
   if (!str) return '';
   return String(str)
@@ -156,17 +150,22 @@ function escapeHTML(str) {
     .replace(/'/g, '&#039;');
 }
 
+/* =========================================================================
+   3. دوال تحميل البيانات المتوافقة مع Swagger
+   ========================================================================= */
+
 async function loadSiteSettings() {
+  // GET /api/Settings/contact -> SiteSettingsDto
   const data = await apiGet('/Settings/contact');
   if (data && data.PhoneNumber) {
     let clean = data.PhoneNumber.replace(/[^0-9]/g, '');
-    // إزالة الأصفار البادئة الدولية إن وجدت
     if (clean.startsWith('00')) clean = clean.substring(2);
     targetWhatsAppNumber = clean;
   }
 }
 
 async function loadBanners() {
+  // GET /api/Banners?onlyActive=true -> BannerDto[]
   const banners = (await apiGet('/Banners?onlyActive=true')) || [];
   const swiperWrapper = document.getElementById('heroBannersWrapper');
   const section = document.getElementById('offersSection');
@@ -179,28 +178,37 @@ async function loadBanners() {
   }
   section.style.display = 'block';
 
-  swiperWrapper.innerHTML = banners.map((b, idx) => `
-    <div class="swiper-slide">
-      <div class="promo-banner banner-theme-${(idx % 4) + 1}">
-        <div class="banner-badge-box">
-          ${b.ImageUrl ? `<img src="${escapeHTML(b.ImageUrl)}" alt="${escapeHTML(b.Title || '')}" style="max-width:85%;max-height:85%;">` : '<i class="fa-solid fa-tag"></i>'}
-        </div>
-        <div class="banner-details">
-          <h2>${escapeHTML(b.Title || 'عرض خاص')}</h2>
-          <p>${escapeHTML(b.Subtitle || 'تجهيزات وعروض حصرية من SMG')}</p>
-          <button type="button" class="btn-cta" onclick="openOffersPage()">
-            <span>${translations[currentLang].bannerCta}</span>
-            <i class="fa-solid fa-arrow-left arrow-icon"></i>
-          </button>
+  // فرز البانرات حسب DisplayOrder إن وُجد
+  banners.sort((a, b) => (a.DisplayOrder || 0) - (b.DisplayOrder || 0));
+
+  swiperWrapper.innerHTML = banners.map((b, idx) => {
+    // التوجيه للرابط المخصص أو صفحة العروض
+    const clickAction = b.LinkUrl ? `window.open('${escapeHTML(b.LinkUrl)}', '_blank')` : `openOffersPage()`;
+
+    return `
+      <div class="swiper-slide">
+        <div class="promo-banner banner-theme-${(idx % 4) + 1}">
+          <div class="banner-badge-box">
+            ${b.ImageUrl ? `<img src="${escapeHTML(b.ImageUrl)}" alt="${escapeHTML(b.Title || '')}" style="max-width:85%;max-height:85%;object-fit:contain;">` : '<i class="fa-solid fa-tag"></i>'}
+          </div>
+          <div class="banner-details">
+            <h2>${escapeHTML(b.Title || 'عرض خاص')}</h2>
+            <p>تجهيزات وعروض حصرية من SMG</p>
+            <button type="button" class="btn-cta" onclick="${clickAction}">
+              <span>${translations[currentLang].bannerCta}</span>
+              <i class="fa-solid fa-arrow-left arrow-icon"></i>
+            </button>
+          </div>
         </div>
       </div>
-    </div>
-  `).join('');
+    `;
+  }).join('');
 
   if (swiperHeroInstance) swiperHeroInstance.update();
 }
 
 async function loadManufacturers() {
+  // GET /api/Manufacturers -> ManufacturerDto[]
   loadedManufacturersData = (await apiGet('/Manufacturers')) || [];
   
   const container = document.getElementById('companiesContainer');
@@ -228,6 +236,7 @@ async function loadManufacturers() {
 }
 
 async function loadCategories() {
+  // GET /api/Categories?manufacturerId={id} -> CategoryDto[]
   const endpoint = filterState.company ? `/Categories?manufacturerId=${filterState.company}` : '/Categories';
   loadedCategoriesData = (await apiGet(endpoint)) || [];
   
@@ -281,39 +290,50 @@ function renderAllCategoriesPage() {
   `).join('');
 }
 
-// معرّف إلغاء لطلبات البحث لمنع Race Conditions
-let activeFetchController = null;
-
+/* =========================================================================
+   4. جلب المنتجات والعروض بدقة بناءً على Swagger
+   ========================================================================= */
 async function fetchProductsFromAPI() {
-  if (activeFetchController) {
-    activeFetchController.abort();
-  }
-  activeFetchController = new AbortController();
-
+  // حالة وصل حديثاً: GET /api/Products/new-arrivals?page=1&pageSize=40
   if (currentView === 'new-arrivals') {
     return (await apiGet('/Products/new-arrivals?page=1&pageSize=40')) || [];
   }
 
+  // حالة العروض: GET /api/Offers ثم جلب منتجات العروض النشطة عبر GET /api/Products/{id}
+  if (filterState.onlyOffers || currentView === 'offers') {
+    const offers = (await apiGet('/Offers')) || [];
+    const now = new Date();
+    
+    // فلترة العروض السارية فقط
+    const validOfferProductIds = [
+      ...new Set(
+        offers
+          .filter(o => o.IsActive && o.ProductId && (!o.EndDate || new Date(o.EndDate) >= now))
+          .map(o => o.ProductId)
+      )
+    ];
+
+    if (validOfferProductIds.length === 0) return [];
+
+    // جلب المنتجات المحددة بالتوازي
+    const productPromises = validOfferProductIds.map(id => apiGet(`/Products/${id}`));
+    const fetchedProducts = await Promise.all(productPromises);
+    return fetchedProducts.filter(p => p !== null);
+  }
+
+  // حالة الفلترة والبحث الافتراضية: GET /api/Products
   const params = new URLSearchParams();
   if (filterState.category) params.append('categoryId', filterState.category);
   if (filterState.company)  params.append('manId', filterState.company);
   if (filterState.searchQuery) params.append('searchTerm', filterState.searchQuery);
   params.append('page', '1');
-  params.append('pageSize', '50');
+  params.append('pageSize', '40');
 
-  const products = (await apiGet(`/Products?${params.toString()}`)) || [];
-
-  if (filterState.onlyOffers) {
-    const offers = (await apiGet('/Offers')) || [];
-    const activeOfferProductIds = new Set(offers.filter(o => o.IsActive).map(o => o.ProductId));
-    return products.filter(p => activeOfferProductIds.has(p.Id));
-  }
-
-  return products;
+  return (await apiGet(`/Products?${params.toString()}`)) || [];
 }
 
 /* =========================================================================
-   4. إدارة الواجهات والتنقل (View Controller)
+   5. إدارة الواجهات والتنقل (View Controller)
    ========================================================================= */
 function switchView(viewName) {
   currentView = viewName;
@@ -408,7 +428,7 @@ window.openOffersPage = function() {
 };
 
 /* =========================================================================
-   5. تهيئة Swipers
+   6. تهيئة Swipers
    ========================================================================= */
 const manualSwiperOptions = {
   loop: false,
@@ -455,7 +475,7 @@ function setupAllSwipers() {
 }
 
 /* =========================================================================
-   6. دوال العرض ورسم كروت المنتجات
+   7. دوال العرض ورسم كروت المنتجات
    ========================================================================= */
 function updateEntitySelectedUI() {
   document.querySelectorAll('[data-company-id]').forEach(el => {
@@ -530,11 +550,11 @@ async function renderProducts() {
     return;
   }
 
-  // تحديث خريطة المنتجات للوصول الآمن عند الإضافة
   loadedProductsMap.clear();
   products.forEach(p => loadedProductsMap.set(p.Id, p));
 
   container.innerHTML = products.map(p => {
+    // Variants: ProductVariantDto[]
     const variant = (p.Variants && p.Variants.length > 0) ? p.Variants[0] : null;
     const companyName = variant?.ManufacturerName || p.CategoryName || 'SMG';
     const productCode = variant?.ProductNumber || `SMG-${p.Id}`;
@@ -575,7 +595,7 @@ async function renderProducts() {
 }
 
 /* =========================================================================
-   7. إدارة السلة وتوليد الطلب
+   8. إدارة السلة وتوليد الطلب
    ========================================================================= */
 window.updateCardQty = function(productId, delta) {
   const el = document.getElementById(`qty-${productId}`);
@@ -585,7 +605,6 @@ window.updateCardQty = function(productId, delta) {
   el.textContent = val;
 };
 
-// إضافة آمنة تعتمد على بيانات الكائن المخزنة برمجياً
 window.addProductToCartById = function(productId) {
   const product = loadedProductsMap.get(productId);
   if (!product) return;
@@ -597,8 +616,6 @@ window.addProductToCartById = function(productId) {
 
   const qtyEl = document.getElementById(`qty-${productId}`);
   const quantityToAdd = qtyEl ? (parseInt(qtyEl.textContent, 10) || 1) : 1;
-
-  // مفتاح فريد لتمييز العنصر داخل السلة بدقة
   const cartKey = `${productId}_${variantId || 0}`;
 
   const existingIndex = cart.findIndex(item => item.cartKey === cartKey);
@@ -715,7 +732,7 @@ function renderCartPage() {
   `;
 }
 
-// دالة إرسال الطلب وحفظه مع تجنب حظر النوافذ المنبثقة
+// إرسال الطلب وحفظه عبر POST /api/Orders/whatsapp مطابقاً لـ WhatsAppOrderRequestDto
 window.sendOrderViaWhatsApp = async function() {
   if (cart.length === 0) {
     alert(translations[currentLang].emptyCart);
@@ -729,6 +746,7 @@ window.sendOrderViaWhatsApp = async function() {
     btn.disabled = true;
   }
 
+  // مطابقة الـ DTO الرسمي: WhatsAppOrderRequestDto
   const orderPayload = {
     Items: cart.map(item => ({
       ProductId: item.id,
@@ -755,7 +773,6 @@ window.sendOrderViaWhatsApp = async function() {
 
   const encodedURL = `https://wa.me/${targetWhatsAppNumber}?text=${encodeURIComponent(msg)}`;
 
-  // مزامنة مع السيرفر
   const isSuccess = await apiPost('/Orders/whatsapp', orderPayload);
 
   if (btn) {
@@ -763,7 +780,6 @@ window.sendOrderViaWhatsApp = async function() {
     btn.disabled = false;
   }
 
-  // التوجيه للواتساب بدون التعرض للحجب
   window.location.href = encodedURL;
 
   if (isSuccess) {
@@ -783,7 +799,7 @@ function showToastNotice(text) {
 }
 
 /* =========================================================================
-   8. دوال التصفية والنقر
+   9. دوال التصفية والنقر
    ========================================================================= */
 window.handleCompanyClick = function(brandId) {
   filterState.company = brandId;
@@ -825,7 +841,7 @@ window.clearSearch = function() {
 };
 
 /* =========================================================================
-   9. تهيئة الصفحة والأحداث
+   10. تهيئة الصفحة والأحداث
    ========================================================================= */
 document.addEventListener('DOMContentLoaded', async () => {
   setupAllSwipers();
