@@ -1,7 +1,7 @@
 /* =========================================================================
    1. إعدادات الخادم والـ API
    ========================================================================= */
-const API_BASE_URL = "http://smg.runasp.net/api"; 
+const API_BASE_URL = "http://smg.runasp.net"; 
 let targetWhatsAppNumber = "963985083231";
 
 async function apiGet(endpoint) {
