@@ -1,15 +1,21 @@
 /* =========================================================================
-   1. إعدادات الخادم والـ API (وفقاً لمواصفات Swagger MadaProject v1.0)
+   1. إعدادات الخادم والـ API
    ========================================================================= */
-const API_BASE_URL = "http://smg.runasp.net"; 
+// التبديل التلقائي: إذا كان الموقع يعمل على Render (HTTPS) يستخدم البروكسي /api-proxy
+// أما إذا كان يعمل محلياً (HTTP) يتصل مباشرة بالسيرفر
+const API_BASE_URL = (window.location.protocol === 'https:' || window.location.hostname.includes('render.com'))
+  ? "/api-proxy" 
+  : "http://smg.runasp.net/api";
+
 let targetWhatsAppNumber = "963985083231";
 
+// دالة لضبط المسار ومنع تكرار /api
 function formatEndpoint(endpoint) {
-  const cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
-  if (cleanEndpoint.startsWith('/api/')) {
-    return cleanEndpoint.replace('/api', '');
+  let clean = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+  if (clean.startsWith('/api/')) {
+    clean = clean.substring(4); // إزالة /api الزائدة
   }
-  return cleanEndpoint;
+  return clean;
 }
 
 async function apiGet(endpoint) {
@@ -60,14 +66,14 @@ let loadedManufacturersData = [];
 let loadedCategoriesData = [];
 let loadedProductsMap = new Map();
 
-// تحميل السلة من التخزين المحلي بأمان
+// قراءة السلة بأمان من التخزين المحلي
 let cart = [];
 try {
   const savedCart = localStorage.getItem('smg_b2b_cart');
   cart = savedCart ? JSON.parse(savedCart) : [];
   if (!Array.isArray(cart)) cart = [];
 } catch (e) {
-  console.warn('Invalid cart in localStorage, resetting to empty array.');
+  console.warn('Resetting corrupt cart from localStorage');
   cart = [];
 }
 
@@ -151,21 +157,20 @@ function escapeHTML(str) {
 }
 
 /* =========================================================================
-   3. دوال تحميل البيانات المتوافقة مع Swagger
+   3. دوال تحميل البيانات من الـ API
    ========================================================================= */
 
 async function loadSiteSettings() {
-  // GET /api/Settings/contact -> SiteSettingsDto
   const data = await apiGet('/Settings/contact');
-  if (data && data.PhoneNumber) {
-    let clean = data.PhoneNumber.replace(/[^0-9]/g, '');
+  const phone = data?.PhoneNumber || data?.phoneNumber;
+  if (phone) {
+    let clean = phone.replace(/[^0-9]/g, '');
     if (clean.startsWith('00')) clean = clean.substring(2);
     targetWhatsAppNumber = clean;
   }
 }
 
 async function loadBanners() {
-  // GET /api/Banners?onlyActive=true -> BannerDto[]
   const banners = (await apiGet('/Banners?onlyActive=true')) || [];
   const swiperWrapper = document.getElementById('heroBannersWrapper');
   const section = document.getElementById('offersSection');
@@ -178,21 +183,22 @@ async function loadBanners() {
   }
   section.style.display = 'block';
 
-  // فرز البانرات حسب DisplayOrder إن وُجد
-  banners.sort((a, b) => (a.DisplayOrder || 0) - (b.DisplayOrder || 0));
+  banners.sort((a, b) => ((a.DisplayOrder ?? a.displayOrder ?? 0) - (b.DisplayOrder ?? b.displayOrder ?? 0)));
 
   swiperWrapper.innerHTML = banners.map((b, idx) => {
-    // التوجيه للرابط المخصص أو صفحة العروض
-    const clickAction = b.LinkUrl ? `window.open('${escapeHTML(b.LinkUrl)}', '_blank')` : `openOffersPage()`;
+    const title = b.Title ?? b.title ?? 'عرض خاص';
+    const image = b.ImageUrl ?? b.imageUrl ?? '';
+    const linkUrl = b.LinkUrl ?? b.linkUrl ?? '';
+    const clickAction = linkUrl ? `window.open('${escapeHTML(linkUrl)}', '_blank')` : `openOffersPage()`;
 
     return `
       <div class="swiper-slide">
         <div class="promo-banner banner-theme-${(idx % 4) + 1}">
           <div class="banner-badge-box">
-            ${b.ImageUrl ? `<img src="${escapeHTML(b.ImageUrl)}" alt="${escapeHTML(b.Title || '')}" style="max-width:85%;max-height:85%;object-fit:contain;">` : '<i class="fa-solid fa-tag"></i>'}
+            ${image ? `<img src="${escapeHTML(image)}" alt="${escapeHTML(title)}" style="max-width:85%;max-height:85%;object-fit:contain;">` : '<i class="fa-solid fa-tag"></i>'}
           </div>
           <div class="banner-details">
-            <h2>${escapeHTML(b.Title || 'عرض خاص')}</h2>
+            <h2>${escapeHTML(title)}</h2>
             <p>تجهيزات وعروض حصرية من SMG</p>
             <button type="button" class="btn-cta" onclick="${clickAction}">
               <span>${translations[currentLang].bannerCta}</span>
@@ -204,11 +210,22 @@ async function loadBanners() {
     `;
   }).join('');
 
-  if (swiperHeroInstance) swiperHeroInstance.update();
+  // تفادي Swiper Loop Warning بحساب عدد الشرائح
+  if (swiperHeroInstance) swiperHeroInstance.destroy(true, true);
+  const heroEl = document.querySelector('.swiper-hero');
+  if (heroEl && banners.length > 0) {
+    swiperHeroInstance = new Swiper(heroEl, {
+      loop: banners.length > 1,
+      speed: 600,
+      observer: true,
+      observeParents: true,
+      autoplay: banners.length > 1 ? { delay: 4500, disableOnInteraction: false } : false,
+      pagination: { el: '.hero-pagination', clickable: true }
+    });
+  }
 }
 
 async function loadManufacturers() {
-  // GET /api/Manufacturers -> ManufacturerDto[]
   loadedManufacturersData = (await apiGet('/Manufacturers')) || [];
   
   const container = document.getElementById('companiesContainer');
@@ -221,22 +238,27 @@ async function loadManufacturers() {
   }
   section.style.display = 'block';
 
-  container.innerHTML = loadedManufacturersData.map(m => `
-    <div class="swiper-slide">
-      <div class="entity-card" data-company-id="${m.Id}" onclick="handleCompanyClick(${m.Id})">
-        <div class="entity-icon">
-          ${m.LogoUrl ? `<img src="${escapeHTML(m.LogoUrl)}" alt="${escapeHTML(m.Name)}" style="max-width:80%;max-height:80%;object-fit:contain;">` : '<i class="fa-solid fa-briefcase-medical"></i>'}
+  container.innerHTML = loadedManufacturersData.map(m => {
+    const id = m.Id ?? m.id;
+    const name = m.Name ?? m.name ?? '';
+    const logo = m.LogoUrl ?? m.logoUrl ?? '';
+
+    return `
+      <div class="swiper-slide">
+        <div class="entity-card" data-company-id="${id}" onclick="handleCompanyClick(${id})">
+          <div class="entity-icon">
+            ${logo ? `<img src="${escapeHTML(logo)}" alt="${escapeHTML(name)}" style="max-width:80%;max-height:80%;object-fit:contain;">` : '<i class="fa-solid fa-briefcase-medical"></i>'}
+          </div>
+          <span class="entity-label">${escapeHTML(name)}</span>
         </div>
-        <span class="entity-label">${escapeHTML(m.Name)}</span>
       </div>
-    </div>
-  `).join('');
+    `;
+  }).join('');
 
   if (swiperCompaniesInstance) swiperCompaniesInstance.update();
 }
 
 async function loadCategories() {
-  // GET /api/Categories?manufacturerId={id} -> CategoryDto[]
   const endpoint = filterState.company ? `/Categories?manufacturerId=${filterState.company}` : '/Categories';
   loadedCategoriesData = (await apiGet(endpoint)) || [];
   
@@ -250,16 +272,22 @@ async function loadCategories() {
   }
   section.style.display = 'block';
 
-  container.innerHTML = loadedCategoriesData.map(c => `
-    <div class="swiper-slide">
-      <div class="entity-card" data-category-id="${c.Id}" onclick="handleCategoryClick(${c.Id})">
-        <div class="entity-icon">
-          ${c.ImageUrl ? `<img src="${escapeHTML(c.ImageUrl)}" alt="${escapeHTML(c.Name)}" style="max-width:80%;max-height:80%;object-fit:contain;">` : '<i class="fa-solid fa-tooth"></i>'}
+  container.innerHTML = loadedCategoriesData.map(c => {
+    const id = c.Id ?? c.id;
+    const name = c.Name ?? c.name ?? '';
+    const image = c.ImageUrl ?? c.imageUrl ?? '';
+
+    return `
+      <div class="swiper-slide">
+        <div class="entity-card" data-category-id="${id}" onclick="handleCategoryClick(${id})">
+          <div class="entity-icon">
+            ${image ? `<img src="${escapeHTML(image)}" alt="${escapeHTML(name)}" style="max-width:80%;max-height:80%;object-fit:contain;">` : '<i class="fa-solid fa-tooth"></i>'}
+          </div>
+          <span class="entity-label">${escapeHTML(name)}</span>
         </div>
-        <span class="entity-label">${escapeHTML(c.Name)}</span>
       </div>
-    </div>
-  `).join('');
+    `;
+  }).join('');
 
   if (swiperCategoriesInstance) swiperCategoriesInstance.update();
 }
@@ -267,61 +295,65 @@ async function loadCategories() {
 function renderAllCompaniesPage() {
   const container = document.getElementById('allCompaniesGrid');
   if (!container) return;
-  container.innerHTML = loadedManufacturersData.map(m => `
-    <div class="entity-card" onclick="handleCompanyClick(${m.Id})">
-      <div class="entity-icon">
-        ${m.LogoUrl ? `<img src="${escapeHTML(m.LogoUrl)}" alt="${escapeHTML(m.Name)}" style="max-width:80%;max-height:80%;object-fit:contain;">` : '<i class="fa-solid fa-briefcase-medical"></i>'}
+  container.innerHTML = loadedManufacturersData.map(m => {
+    const id = m.Id ?? m.id;
+    const name = m.Name ?? m.name ?? '';
+    const logo = m.LogoUrl ?? m.logoUrl ?? '';
+    return `
+      <div class="entity-card" onclick="handleCompanyClick(${id})">
+        <div class="entity-icon">
+          ${logo ? `<img src="${escapeHTML(logo)}" alt="${escapeHTML(name)}" style="max-width:80%;max-height:80%;object-fit:contain;">` : '<i class="fa-solid fa-briefcase-medical"></i>'}
+        </div>
+        <span class="entity-label">${escapeHTML(name)}</span>
       </div>
-      <span class="entity-label">${escapeHTML(m.Name)}</span>
-    </div>
-  `).join('');
+    `;
+  }).join('');
 }
 
 function renderAllCategoriesPage() {
   const container = document.getElementById('allCategoriesGrid');
   if (!container) return;
-  container.innerHTML = loadedCategoriesData.map(c => `
-    <div class="entity-card" onclick="handleCategoryClick(${c.Id})">
-      <div class="entity-icon">
-        ${c.ImageUrl ? `<img src="${escapeHTML(c.ImageUrl)}" alt="${escapeHTML(c.Name)}" style="max-width:80%;max-height:80%;object-fit:contain;">` : '<i class="fa-solid fa-tooth"></i>'}
+  container.innerHTML = loadedCategoriesData.map(c => {
+    const id = c.Id ?? c.id;
+    const name = c.Name ?? c.name ?? '';
+    const image = c.ImageUrl ?? c.imageUrl ?? '';
+    return `
+      <div class="entity-card" onclick="handleCategoryClick(${id})">
+        <div class="entity-icon">
+          ${image ? `<img src="${escapeHTML(image)}" alt="${escapeHTML(name)}" style="max-width:80%;max-height:80%;object-fit:contain;">` : '<i class="fa-solid fa-tooth"></i>'}
+        </div>
+        <span class="entity-label">${escapeHTML(name)}</span>
       </div>
-      <span class="entity-label">${escapeHTML(c.Name)}</span>
-    </div>
-  `).join('');
+    `;
+  }).join('');
 }
 
 /* =========================================================================
-   4. جلب المنتجات والعروض بدقة بناءً على Swagger
+   4. جلب المنتجات والعروض
    ========================================================================= */
 async function fetchProductsFromAPI() {
-  // حالة وصل حديثاً: GET /api/Products/new-arrivals?page=1&pageSize=40
   if (currentView === 'new-arrivals') {
     return (await apiGet('/Products/new-arrivals?page=1&pageSize=40')) || [];
   }
 
-  // حالة العروض: GET /api/Offers ثم جلب منتجات العروض النشطة عبر GET /api/Products/{id}
   if (filterState.onlyOffers || currentView === 'offers') {
     const offers = (await apiGet('/Offers')) || [];
     const now = new Date();
     
-    // فلترة العروض السارية فقط
     const validOfferProductIds = [
       ...new Set(
         offers
-          .filter(o => o.IsActive && o.ProductId && (!o.EndDate || new Date(o.EndDate) >= now))
-          .map(o => o.ProductId)
+          .filter(o => (o.IsActive ?? o.isActive) && (o.ProductId ?? o.productId) && (!(o.EndDate ?? o.endDate) || new Date(o.EndDate ?? o.endDate) >= now))
+          .map(o => o.ProductId ?? o.productId)
       )
     ];
 
     if (validOfferProductIds.length === 0) return [];
-
-    // جلب المنتجات المحددة بالتوازي
     const productPromises = validOfferProductIds.map(id => apiGet(`/Products/${id}`));
     const fetchedProducts = await Promise.all(productPromises);
     return fetchedProducts.filter(p => p !== null);
   }
 
-  // حالة الفلترة والبحث الافتراضية: GET /api/Products
   const params = new URLSearchParams();
   if (filterState.category) params.append('categoryId', filterState.category);
   if (filterState.company)  params.append('manId', filterState.company);
@@ -447,21 +479,8 @@ const manualSwiperOptions = {
 };
 
 function setupAllSwipers() {
-  if (swiperHeroInstance) swiperHeroInstance.destroy(true, true);
   if (swiperCompaniesInstance) swiperCompaniesInstance.destroy(true, true);
   if (swiperCategoriesInstance) swiperCategoriesInstance.destroy(true, true);
-
-  const heroEl = document.querySelector('.swiper-hero');
-  if (heroEl) {
-    swiperHeroInstance = new Swiper(heroEl, {
-      loop: true,
-      speed: 600,
-      observer: true,
-      observeParents: true,
-      autoplay: { delay: 4500, disableOnInteraction: false, pauseOnMouseEnter: true },
-      pagination: { el: '.hero-pagination', clickable: true }
-    });
-  }
 
   const compEl = document.querySelector('.swiper-companies');
   if (compEl) {
@@ -475,7 +494,7 @@ function setupAllSwipers() {
 }
 
 /* =========================================================================
-   7. دوال العرض ورسم كروت المنتجات
+   7. دوال العرض ورسم المنتجات
    ========================================================================= */
 function updateEntitySelectedUI() {
   document.querySelectorAll('[data-company-id]').forEach(el => {
@@ -507,13 +526,14 @@ function renderFilterStatusBar() {
   let chipsHTML = '';
 
   if (filterState.company) {
-    const brandObj = loadedManufacturersData.find(b => b.Id === filterState.company);
-    chipsHTML += `<span class="chip">${escapeHTML(brandObj ? brandObj.Name : filterState.company)} <i class="fa-solid fa-xmark" onclick="removeCompanyFilter()"></i></span>`;
+    const brandObj = loadedManufacturersData.find(b => (b.Id ?? b.id) === filterState.company);
+    const brandName = brandObj ? (brandObj.Name ?? brandObj.name) : filterState.company;
+    chipsHTML += `<span class="chip">${escapeHTML(brandName)} <i class="fa-solid fa-xmark" onclick="removeCompanyFilter()"></i></span>`;
   }
 
   if (filterState.category) {
-    const catObj = loadedCategoriesData.find(c => c.Id === filterState.category);
-    const catLabel = catObj ? catObj.Name : filterState.category;
+    const catObj = loadedCategoriesData.find(c => (c.Id ?? c.id) === filterState.category);
+    const catLabel = catObj ? (catObj.Name ?? catObj.name) : filterState.category;
     chipsHTML += `<span class="chip">${escapeHTML(catLabel)} <i class="fa-solid fa-xmark" onclick="removeCategoryFilter()"></i></span>`;
   }
 
@@ -551,13 +571,15 @@ async function renderProducts() {
   }
 
   loadedProductsMap.clear();
-  products.forEach(p => loadedProductsMap.set(p.Id, p));
+  products.forEach(p => loadedProductsMap.set(p.Id ?? p.id, p));
 
   container.innerHTML = products.map(p => {
-    // Variants: ProductVariantDto[]
-    const variant = (p.Variants && p.Variants.length > 0) ? p.Variants[0] : null;
-    const companyName = variant?.ManufacturerName || p.CategoryName || 'SMG';
-    const productCode = variant?.ProductNumber || `SMG-${p.Id}`;
+    const pId = p.Id ?? p.id;
+    const pName = p.Name ?? p.name ?? '';
+    const variants = p.Variants ?? p.variants;
+    const variant = (variants && variants.length > 0) ? variants[0] : null;
+    const companyName = variant ? (variant.ManufacturerName ?? variant.manufacturerName) : (p.CategoryName ?? p.categoryName ?? 'SMG');
+    const productCode = variant ? (variant.ProductNumber ?? variant.productNumber) : `SMG-${pId}`;
 
     let badgeHTML = '';
     if (currentView === 'offers' || filterState.onlyOffers) {
@@ -567,24 +589,24 @@ async function renderProducts() {
     }
 
     return `
-      <div class="product-card" id="card-${p.Id}">
+      <div class="product-card" id="card-${pId}">
         <div>
           <div class="product-head">
             <span class="product-company"><i class="fa-solid fa-tooth"></i> ${escapeHTML(companyName)}</span>
             ${badgeHTML}
           </div>
           <div class="product-info">
-            <h4>${escapeHTML(p.Name)}</h4>
+            <h4>${escapeHTML(pName)}</h4>
             <span class="product-code">${translations[currentLang].codeText} ${escapeHTML(productCode)}</span>
           </div>
         </div>
         <div class="product-action-row">
           <div class="qty-control">
-            <button type="button" class="qty-btn" onclick="updateCardQty(${p.Id}, 1)">+</button>
-            <span class="qty-count" id="qty-${p.Id}">1</span>
-            <button type="button" class="qty-btn" onclick="updateCardQty(${p.Id}, -1)">-</button>
+            <button type="button" class="qty-btn" onclick="updateCardQty(${pId}, 1)">+</button>
+            <span class="qty-count" id="qty-${pId}">1</span>
+            <button type="button" class="qty-btn" onclick="updateCardQty(${pId}, -1)">-</button>
           </div>
-          <button type="button" class="btn-add-cart" onclick="addProductToCartById(${p.Id})">
+          <button type="button" class="btn-add-cart" onclick="addProductToCartById(${pId})">
             <i class="fa-solid fa-cart-plus"></i>
             <span>${translations[currentLang].addToCart}</span>
           </button>
@@ -609,14 +631,17 @@ window.addProductToCartById = function(productId) {
   const product = loadedProductsMap.get(productId);
   if (!product) return;
 
-  const variant = (product.Variants && product.Variants.length > 0) ? product.Variants[0] : null;
-  const variantId = variant ? variant.Id : null;
-  const companyName = variant?.ManufacturerName || product.CategoryName || 'SMG';
-  const productCode = variant?.ProductNumber || `SMG-${product.Id}`;
+  const pId = product.Id ?? product.id;
+  const pName = product.Name ?? product.name;
+  const variants = product.Variants ?? product.variants;
+  const variant = (variants && variants.length > 0) ? variants[0] : null;
+  const variantId = variant ? (variant.Id ?? variant.id) : null;
+  const companyName = variant ? (variant.ManufacturerName ?? variant.manufacturerName) : (product.CategoryName ?? product.categoryName ?? 'SMG');
+  const productCode = variant ? (variant.ProductNumber ?? variant.productNumber) : `SMG-${pId}`;
 
   const qtyEl = document.getElementById(`qty-${productId}`);
   const quantityToAdd = qtyEl ? (parseInt(qtyEl.textContent, 10) || 1) : 1;
-  const cartKey = `${productId}_${variantId || 0}`;
+  const cartKey = `${pId}_${variantId || 0}`;
 
   const existingIndex = cart.findIndex(item => item.cartKey === cartKey);
   if (existingIndex > -1) {
@@ -624,9 +649,9 @@ window.addProductToCartById = function(productId) {
   } else {
     cart.push({
       cartKey: cartKey,
-      id: productId,
+      id: pId,
       variantId: variantId,
-      name: product.Name,
+      name: pName,
       code: productCode,
       company: companyName,
       qty: quantityToAdd
@@ -634,7 +659,7 @@ window.addProductToCartById = function(productId) {
   }
 
   saveCart();
-  showToastNotice(`تمت إضافة (${quantityToAdd}) من ${product.Name} إلى السلة`);
+  showToastNotice(`تمت إضافة (${quantityToAdd}) من ${pName} إلى السلة`);
   if (qtyEl) qtyEl.textContent = '1';
 };
 
@@ -732,7 +757,6 @@ function renderCartPage() {
   `;
 }
 
-// إرسال الطلب وحفظه عبر POST /api/Orders/whatsapp مطابقاً لـ WhatsAppOrderRequestDto
 window.sendOrderViaWhatsApp = async function() {
   if (cart.length === 0) {
     alert(translations[currentLang].emptyCart);
@@ -746,7 +770,6 @@ window.sendOrderViaWhatsApp = async function() {
     btn.disabled = true;
   }
 
-  // مطابقة الـ DTO الرسمي: WhatsAppOrderRequestDto
   const orderPayload = {
     Items: cart.map(item => ({
       ProductId: item.id,
