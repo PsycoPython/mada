@@ -550,170 +550,177 @@ html[dir="ltr"] .banner-details { text-align: left; }
 #productsGridContainer,
 .products-grid {
   display: grid !important;
-  /* حجم محدد وأنيق لكل كرت لمنع التمدد غير الطبيعي */
-  grid-template-columns: repeat(auto-fill, minmax(250px, 290px)) !important;
-  /* منع تمدد الصفوف عمودياً لارتفاع الصفحة */
+  grid-template-columns: repeat(auto-fill, minmax(240px, 280px)) !important;
   grid-auto-rows: max-content !important;
   align-items: start !important;
+  align-content: start !important;
   justify-content: start !important;
-  gap: 20px !important;
+  gap: 16px !important;
   margin-bottom: 40px !important;
   width: 100% !important;
 }
 
 .product-card {
   width: 100% !important;
-  max-width: 300px !important;
-  height: auto !important;
-  min-height: auto !important;
-  background: var(--surface-card);
-  border: 1.5px solid var(--border-subtle);
-  border-radius: 16px;
-  padding: 16px;
-  display: flex;
-  flex-direction: column;
-  box-shadow: 0 4px 14px rgba(13, 130, 125, 0.05);
-  box-sizing: border-box;
-  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  max-width: 280px !important;
+  height: fit-content !important;
+  min-height: unset !important;
+  max-height: fit-content !important;
+  align-self: start !important;
+  background: var(--surface-card) !important;
+  border: 1px solid var(--border-subtle) !important;
+  border-radius: 14px !important;
+  padding: 14px 16px !important;
+  box-shadow: 0 4px 12px rgba(13, 130, 125, 0.05) !important;
+  box-sizing: border-box !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: flex-start !important;
+  gap: 12px !important;
+  margin: 0 !important;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease !important;
 }
 
 .product-card:hover {
-  transform: translateY(-3px);
-  border-color: var(--primary);
-  box-shadow: 0 8px 20px rgba(13, 130, 125, 0.12);
+  transform: translateY(-3px) !important;
+  border-color: var(--primary) !important;
+  box-shadow: 0 8px 20px rgba(13, 130, 125, 0.12) !important;
 }
 
 .product-head {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 14px;
-  gap: 6px;
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  width: 100% !important;
+  gap: 6px !important;
+  margin: 0 !important;
 }
 
 .product-company {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  font-size: 12px;
-  font-weight: 700;
-  color: var(--primary);
-  background: var(--surface-icon);
-  padding: 4px 10px;
-  border-radius: 8px;
-  white-space: nowrap;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 5px !important;
+  font-size: 12px !important;
+  font-weight: 700 !important;
+  color: var(--primary) !important;
+  background: var(--surface-icon) !important;
+  padding: 4px 10px !important;
+  border-radius: 8px !important;
+  white-space: nowrap !important;
 }
 
 .product-badge {
-  font-size: 11px;
-  font-weight: 800;
-  padding: 4px 8px;
-  border-radius: 6px;
-  white-space: nowrap;
+  font-size: 11px !important;
+  font-weight: 800 !important;
+  padding: 4px 8px !important;
+  border-radius: 6px !important;
+  white-space: nowrap !important;
 }
 
-.badge-new { background: #e0f2fe; color: #0284c7; }
-.badge-offer { background: #fee2e2; color: #dc2626; }
+.badge-new { background: #e0f2fe !important; color: #0284c7 !important; }
+.badge-offer { background: #fee2e2 !important; color: #dc2626 !important; }
 
 .product-info {
-  margin-bottom: 16px;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: flex-start !important;
+  gap: 4px !important;
+  margin: 0 !important;
 }
 
 .product-info h4 {
-  font-size: 16px;
-  font-weight: 800;
-  color: var(--text-main);
-  margin-bottom: 6px;
-  line-height: 1.35;
+  font-size: 15px !important;
+  font-weight: 800 !important;
+  color: var(--text-main) !important;
+  line-height: 1.35 !important;
+  margin: 0 !important;
 }
 
 .product-code {
-  font-size: 11.5px;
-  color: var(--text-muted);
-  font-weight: 600;
-  display: inline-block;
-  background: rgba(0, 0, 0, 0.04);
-  padding: 2px 8px;
-  border-radius: 6px;
-  direction: ltr;
+  font-size: 11px !important;
+  color: var(--text-muted) !important;
+  background: rgba(0, 0, 0, 0.04) !important;
+  padding: 2px 6px !important;
+  border-radius: 4px !important;
+  display: inline-block !important;
+  direction: ltr !important;
 }
 
 body.dark-mode .product-code {
-  background: rgba(255, 255, 255, 0.06);
+  background: rgba(255, 255, 255, 0.06) !important;
 }
 
 .product-action-row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding-top: 14px;
-  border-top: 1px solid var(--border-subtle);
-  margin-top: auto; /* دفع عناصر الشراء للأسفل تلقائياً */
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  padding-top: 10px !important;
+  border-top: 1px solid var(--border-subtle) !important;
+  margin-top: 4px !important;
+  width: 100% !important;
 }
 
 .qty-control {
-  display: flex;
-  align-items: center;
-  background: var(--surface-icon);
-  border-radius: 10px;
-  overflow: hidden;
-  height: 38px;
-  flex-shrink: 0;
+  display: flex !important;
+  align-items: center !important;
+  background: var(--surface-icon) !important;
+  border-radius: 8px !important;
+  overflow: hidden !important;
+  height: 34px !important;
+  flex-shrink: 0 !important;
 }
 
 .qty-btn {
-  background: transparent;
-  border: none;
-  width: 32px;
-  height: 100%;
-  font-size: 16px;
-  font-weight: 800;
-  color: var(--primary);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: background 0.15s;
+  background: transparent !important;
+  border: none !important;
+  width: 28px !important;
+  height: 100% !important;
+  font-size: 15px !important;
+  font-weight: 800 !important;
+  color: var(--primary) !important;
+  cursor: pointer !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
 }
 
 .qty-btn:hover {
-  background: rgba(13, 130, 125, 0.15);
+  background: rgba(13, 130, 125, 0.15) !important;
 }
 
 .qty-count {
-  width: 28px;
-  text-align: center;
-  font-size: 14px;
-  font-weight: 800;
-  color: var(--text-main);
+  width: 24px !important;
+  text-align: center !important;
+  font-size: 13px !important;
+  font-weight: 800 !important;
+  color: var(--text-main) !important;
 }
 
 .btn-add-cart {
-  flex: 1;
-  background: var(--primary);
-  color: #ffffff;
-  border: none;
-  height: 38px;
-  border-radius: 10px;
-  font-size: 13px;
-  font-weight: 700;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  white-space: nowrap;
-  transition: all 0.2s ease;
-  box-shadow: 0 3px 10px rgba(13, 130, 125, 0.2);
+  flex: 1 !important;
+  background: var(--primary) !important;
+  color: #ffffff !important;
+  border: none !important;
+  height: 34px !important;
+  border-radius: 8px !important;
+  font-size: 12.5px !important;
+  font-weight: 700 !important;
+  cursor: pointer !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 6px !important;
+  white-space: nowrap !important;
+  transition: all 0.2s ease !important;
 }
 
 .btn-add-cart:hover {
-  background: var(--primary-dark);
-  transform: translateY(-1px);
+  background: var(--primary-dark) !important;
+  transform: translateY(-1px) !important;
 }
 
 body.dark-mode .btn-add-cart {
-  color: #091315;
+  color: #091315 !important;
 }
 
 /* =========================================================================
@@ -770,66 +777,85 @@ body.dark-mode .btn-add-cart {
 }
 
 .cart-items-container {
-  background: var(--surface-card);
-  border: 1px solid var(--border-card);
-  border-radius: var(--radius-card);
-  padding: 16px;
-  box-shadow: var(--shadow-soft);
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 12px !important;
+  width: 100% !important;
+  height: auto !important;
 }
 
-.cart-page-item {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  background: var(--surface-white);
-  border: 1px solid var(--border-card);
-  border-radius: 12px;
-  padding: 14px 16px;
-  gap: 12px;
+.cart-item {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  background: var(--surface-card, #ffffff) !important;
+  border: 1px solid var(--border-subtle, #e2e8f0) !important;
+  border-radius: 12px !important;
+  padding: 14px 18px !important;
+  height: auto !important;
+  min-height: unset !important;
+  max-height: unset !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+  gap: 16px !important;
+  position: relative !important;
 }
 
-.cart-item-details strong {
-  font-size: 14.5px;
-  font-weight: 800;
-  color: var(--text-main);
-  display: block;
-  margin-bottom: 3px;
+.cart-item-info {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: flex-start !important;
+  gap: 4px !important;
+  flex: 1 !important;
+  text-align: right !important;
 }
 
-.cart-item-details span {
-  font-size: 11.5px;
-  color: var(--text-muted);
-  font-weight: 600;
+.cart-item-info h4 {
+  font-size: 15px !important;
+  font-weight: 800 !important;
+  color: var(--text-main) !important;
+  margin: 0 !important;
+  line-height: 1.3 !important;
 }
 
-.cart-item-interactive {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex-shrink: 0;
+.cart-item-info .product-code {
+  font-size: 11px !important;
+  color: var(--text-muted) !important;
 }
 
-.btn-remove-cart {
-  background: rgba(239, 68, 68, 0.08);
-  border: none;
-  color: #ef4444;
-  width: 32px;
-  height: 32px;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: 0.2s;
-  font-size: 13.5px;
+.cart-item-actions {
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+  flex-shrink: 0 !important;
+  margin: 0 !important;
 }
 
-.btn-remove-cart:hover {
-  background: #ef4444;
-  color: #ffffff;
+.cart-item-actions .qty-control {
+  display: flex !important;
+  align-items: center !important;
+  background: var(--surface-icon, #f1f5f9) !important;
+  border-radius: 8px !important;
+  height: 34px !important;
+  padding: 0 4px !important;
+}
+
+.cart-item-actions .btn-delete-item {
+  background: transparent !important;
+  border: none !important;
+  color: #ef4444 !important;
+  font-size: 16px !important;
+  cursor: pointer !important;
+  padding: 6px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  transition: transform 0.15s ease !important;
+}
+
+.cart-item-actions .btn-delete-item:hover {
+  transform: scale(1.15) !important;
 }
 
 .cart-summary-box {
@@ -993,7 +1019,7 @@ body.dark-mode .btn-add-cart {
 .footer-shortcut-side i { color: var(--accent-orange); }
 
 /* =========================================================================
-   10. التجاوب مع مختلف الشاشات (Responsive)
+   10. التجاوب مع الشاشات (Responsive)
    ========================================================================= */
 @media (max-width: 992px) {
   .cart-page-layout { grid-template-columns: 1fr; }
@@ -1052,247 +1078,4 @@ body.dark-mode .btn-add-cart {
     text-align: center;
   }
   .footer-logo { justify-content: center; }
-}
-/* =========================================================================
-   الحل الحاسم لشكل وحجم كروت المنتجات
-   ========================================================================= */
-
-/* جعل الحاوية ترتب الكروت بجانب بعضها بحجمها الطبيعي بدون أي تمدد */
-/* =========================================================================
-   الحل النهائي لضبط حجم وشكل كروت المنتجات (Compact Cards Grid)
-   ========================================================================= */
-
-#productsGridContainer,
-.products-grid {
-  display: grid !important;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 280px)) !important;
-  grid-auto-rows: max-content !important;
-  align-items: start !important;
-  align-content: start !important;
-  justify-content: start !important;
-  gap: 16px !important;
-  margin-bottom: 40px !important;
-  width: 100% !important;
-}
-
-.product-card {
-  width: 100% !important;
-  max-width: 280px !important;
-  height: fit-content !important;
-  min-height: unset !important;
-  max-height: fit-content !important;
-  align-self: start !important;
-  background: var(--surface-card) !important;
-  border: 1px solid var(--border-subtle) !important;
-  border-radius: 14px !important;
-  padding: 14px 16px !important;
-  box-shadow: 0 4px 12px rgba(13, 130, 125, 0.05) !important;
-  box-sizing: border-box !important;
-  display: flex !important;
-  flex-direction: column !important;
-  justify-content: flex-start !important;
-  gap: 12px !important;
-  margin: 0 !important;
-  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease !important;
-}
-
-.product-card:hover {
-  transform: translateY(-3px) !important;
-  border-color: var(--primary) !important;
-  box-shadow: 0 8px 20px rgba(13, 130, 125, 0.12) !important;
-}
-
-.product-head {
-  display: flex !important;
-  justify-content: space-between !important;
-  align-items: center !important;
-  width: 100% !important;
-  gap: 6px !important;
-  margin: 0 !important;
-}
-
-.product-info {
-  display: flex !important;
-  flex-direction: column !important;
-  align-items: flex-start !important;
-  gap: 4px !important;
-  margin: 0 !important;
-}
-
-.product-info h4 {
-  font-size: 15px !important;
-  font-weight: 800 !important;
-  color: var(--text-main) !important;
-  line-height: 1.35 !important;
-  margin: 0 !important;
-}
-
-.product-code {
-  font-size: 11px !important;
-  color: var(--text-muted) !important;
-  background: rgba(0, 0, 0, 0.04) !important;
-  padding: 2px 6px !important;
-  border-radius: 4px !important;
-  display: inline-block !important;
-}
-
-body.dark-mode .product-code {
-  background: rgba(255, 255, 255, 0.06) !important;
-}
-
-.product-action-row {
-  display: flex !important;
-  align-items: center !important;
-  gap: 8px !important;
-  padding-top: 10px !important;
-  border-top: 1px solid var(--border-subtle) !important;
-  margin-top: 4px !important;
-  width: 100% !important;
-}
-
-.qty-control {
-  display: flex !important;
-  align-items: center !important;
-  background: var(--surface-icon) !important;
-  border-radius: 8px !important;
-  overflow: hidden !important;
-  height: 34px !important;
-  flex-shrink: 0 !important;
-}
-
-.qty-btn {
-  background: transparent !important;
-  border: none !important;
-  width: 28px !important;
-  height: 100% !important;
-  font-size: 15px !important;
-  font-weight: 800 !important;
-  color: var(--primary) !important;
-  cursor: pointer !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-}
-
-.qty-btn:hover {
-  background: rgba(13, 130, 125, 0.15) !important;
-}
-
-.qty-count {
-  width: 24px !important;
-  text-align: center !important;
-  font-size: 13px !important;
-  font-weight: 800 !important;
-  color: var(--text-main) !important;
-}
-
-.btn-add-cart {
-  flex: 1 !important;
-  background: var(--primary) !important;
-  color: #ffffff !important;
-  border: none !important;
-  height: 34px !important;
-  border-radius: 8px !important;
-  font-size: 12.5px !important;
-  font-weight: 700 !important;
-  cursor: pointer !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  gap: 6px !important;
-  white-space: nowrap !important;
-  transition: all 0.2s ease !important;
-}
-
-.btn-add-cart:hover {
-  background: var(--primary-dark) !important;
-  transform: translateY(-1px) !important;
-}
-/* =========================================================================
-   إصلاح تنسيق كروت صفحة السلة (Cart Items Fix)
-   ========================================================================= */
-
-#cartItemsList,
-.cart-items-container {
-  display: flex !important;
-  flex-direction: column !important;
-  gap: 12px !important;
-  width: 100% !important;
-  height: auto !important;
-}
-
-.cart-item {
-  display: flex !important;
-  flex-direction: row !important;
-  align-items: center !important;
-  justify-content: space-between !important;
-  background: var(--surface-card, #ffffff) !important;
-  border: 1px solid var(--border-subtle, #e2e8f0) !important;
-  border-radius: 12px !important;
-  padding: 14px 18px !important;
-  height: auto !important;
-  min-height: unset !important;
-  max-height: unset !important;
-  width: 100% !important;
-  box-sizing: border-box !important;
-  gap: 16px !important;
-  position: relative !important;
-}
-
-/* تفاصيل المنتج داخل السلة */
-.cart-item-info {
-  display: flex !important;
-  flex-direction: column !important;
-  align-items: flex-start !important;
-  gap: 4px !important;
-  flex: 1 !important;
-  text-align: right !important;
-}
-
-.cart-item-info h4 {
-  font-size: 15px !important;
-  font-weight: 800 !important;
-  color: var(--text-main) !important;
-  margin: 0 !important;
-  line-height: 1.3 !important;
-}
-
-.cart-item-info .product-code {
-  font-size: 11px !important;
-  color: var(--text-muted) !important;
-}
-
-/* منطقة الأزرار والتحكم داخل الكرت */
-.cart-item-actions {
-  display: flex !important;
-  align-items: center !important;
-  gap: 12px !important;
-  flex-shrink: 0 !important;
-  margin: 0 !important;
-}
-
-.cart-item-actions .qty-control {
-  display: flex !important;
-  align-items: center !important;
-  background: var(--surface-icon, #f1f5f9) !important;
-  border-radius: 8px !important;
-  height: 34px !important;
-  padding: 0 4px !important;
-}
-
-.cart-item-actions .btn-delete-item {
-  background: transparent !important;
-  border: none !important;
-  color: #ef4444 !important;
-  font-size: 16px !important;
-  cursor: pointer !important;
-  padding: 6px !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  transition: transform 0.15s ease !important;
-}
-
-.cart-item-actions .btn-delete-item:hover {
-  transform: scale(1.15) !important;
 }
