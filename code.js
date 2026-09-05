@@ -1,12 +1,23 @@
 /* =========================================================================
    1. إعدادات الخادم والـ API
    ========================================================================= */
+// جعل الرابط الأساسي خالياً من /api لتجنب التكرار، أو توحيد المسارات
 const API_BASE_URL = "http://smg.runasp.net/api"; 
 let targetWhatsAppNumber = "963985083231";
 
+// معالجة الرابط تلقائياً لمنع تكرار /api/
+function formatEndpoint(endpoint) {
+  const cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+  if (cleanEndpoint.startsWith('/api/')) {
+    return cleanEndpoint.replace('/api', '');
+  }
+  return cleanEndpoint;
+}
+
 async function apiGet(endpoint) {
   try {
-    const res = await fetch(`${API_BASE_URL}${endpoint}`);
+    const url = `${API_BASE_URL}${formatEndpoint(endpoint)}`;
+    const res = await fetch(url);
     if (!res.ok) throw new Error(`HTTP Error: ${res.status}`);
     return await res.json();
   } catch (err) {
@@ -17,7 +28,8 @@ async function apiGet(endpoint) {
 
 async function apiPost(endpoint, bodyData) {
   try {
-    const res = await fetch(`${API_BASE_URL}${endpoint}`, {
+    const url = `${API_BASE_URL}${formatEndpoint(endpoint)}`;
+    const res = await fetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(bodyData)
@@ -48,8 +60,19 @@ let swiperCategoriesInstance = null;
 
 let loadedManufacturersData = [];
 let loadedCategoriesData = [];
+let loadedProductsMap = new Map(); // لتخزين كائنات المنتجات ومنع ثغرات الحقن في الـ HTML
 
-let cart = JSON.parse(localStorage.getItem('smg_b2b_cart')) || [];
+// قراءة السلة بأمان لمنع الانهيار
+let cart = [];
+try {
+  const savedCart = localStorage.getItem('smg_b2b_cart');
+  cart = savedCart ? JSON.parse(savedCart) : [];
+  if (!Array.isArray(cart)) cart = [];
+} catch (e) {
+  console.warn('Failed to parse cart from localStorage, initializing empty cart.', e);
+  cart = [];
+}
+
 let currentLang = 'ar';
 
 const translations = {
@@ -120,18 +143,31 @@ const translations = {
 };
 
 /* =========================================================================
-   3. دوال تحميل البيانات من الـ API
+   3. دوال مساعدة وتحميل البيانات
    ========================================================================= */
 
+function escapeHTML(str) {
+  if (!str) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
 async function loadSiteSettings() {
-  const data = await apiGet('/api/Settings/contact');
+  const data = await apiGet('/Settings/contact');
   if (data && data.PhoneNumber) {
-    targetWhatsAppNumber = data.PhoneNumber.replace(/[^0-9]/g, '');
+    let clean = data.PhoneNumber.replace(/[^0-9]/g, '');
+    // إزالة الأصفار البادئة الدولية إن وجدت
+    if (clean.startsWith('00')) clean = clean.substring(2);
+    targetWhatsAppNumber = clean;
   }
 }
 
 async function loadBanners() {
-  const banners = await apiGet('/api/Banners?onlyActive=true') || [];
+  const banners = (await apiGet('/Banners?onlyActive=true')) || [];
   const swiperWrapper = document.getElementById('heroBannersWrapper');
   const section = document.getElementById('offersSection');
   
@@ -147,11 +183,11 @@ async function loadBanners() {
     <div class="swiper-slide">
       <div class="promo-banner banner-theme-${(idx % 4) + 1}">
         <div class="banner-badge-box">
-          ${b.ImageUrl ? `<img src="${b.ImageUrl}" alt="${b.Title || ''}" style="max-width:85%;max-height:85%;">` : '<i class="fa-solid fa-tag"></i>'}
+          ${b.ImageUrl ? `<img src="${escapeHTML(b.ImageUrl)}" alt="${escapeHTML(b.Title || '')}" style="max-width:85%;max-height:85%;">` : '<i class="fa-solid fa-tag"></i>'}
         </div>
         <div class="banner-details">
-          <h2>${b.Title || 'عرض خاص'}</h2>
-          <p>${b.Subtitle || 'تجهيزات وعروض حصرية من SMG'}</p>
+          <h2>${escapeHTML(b.Title || 'عرض خاص')}</h2>
+          <p>${escapeHTML(b.Subtitle || 'تجهيزات وعروض حصرية من SMG')}</p>
           <button type="button" class="btn-cta" onclick="openOffersPage()">
             <span>${translations[currentLang].bannerCta}</span>
             <i class="fa-solid fa-arrow-left arrow-icon"></i>
@@ -165,7 +201,7 @@ async function loadBanners() {
 }
 
 async function loadManufacturers() {
-  loadedManufacturersData = await apiGet('/api/Manufacturers') || [];
+  loadedManufacturersData = (await apiGet('/Manufacturers')) || [];
   
   const container = document.getElementById('companiesContainer');
   const section = document.getElementById('brandsSection');
@@ -181,9 +217,9 @@ async function loadManufacturers() {
     <div class="swiper-slide">
       <div class="entity-card" data-company-id="${m.Id}" onclick="handleCompanyClick(${m.Id})">
         <div class="entity-icon">
-          ${m.LogoUrl ? `<img src="${m.LogoUrl}" alt="${m.Name}" style="max-width:80%;max-height:80%;object-fit:contain;">` : '<i class="fa-solid fa-briefcase-medical"></i>'}
+          ${m.LogoUrl ? `<img src="${escapeHTML(m.LogoUrl)}" alt="${escapeHTML(m.Name)}" style="max-width:80%;max-height:80%;object-fit:contain;">` : '<i class="fa-solid fa-briefcase-medical"></i>'}
         </div>
-        <span class="entity-label">${m.Name}</span>
+        <span class="entity-label">${escapeHTML(m.Name)}</span>
       </div>
     </div>
   `).join('');
@@ -192,8 +228,8 @@ async function loadManufacturers() {
 }
 
 async function loadCategories() {
-  const endpoint = filterState.company ? `/api/Categories?manufacturerId=${filterState.company}` : '/api/Categories';
-  loadedCategoriesData = await apiGet(endpoint) || [];
+  const endpoint = filterState.company ? `/Categories?manufacturerId=${filterState.company}` : '/Categories';
+  loadedCategoriesData = (await apiGet(endpoint)) || [];
   
   const container = document.getElementById('categoriesContainer');
   const section = document.getElementById('categoriesSection');
@@ -209,9 +245,9 @@ async function loadCategories() {
     <div class="swiper-slide">
       <div class="entity-card" data-category-id="${c.Id}" onclick="handleCategoryClick(${c.Id})">
         <div class="entity-icon">
-          ${c.ImageUrl ? `<img src="${c.ImageUrl}" alt="${c.Name}" style="max-width:80%;max-height:80%;object-fit:contain;">` : '<i class="fa-solid fa-tooth"></i>'}
+          ${c.ImageUrl ? `<img src="${escapeHTML(c.ImageUrl)}" alt="${escapeHTML(c.Name)}" style="max-width:80%;max-height:80%;object-fit:contain;">` : '<i class="fa-solid fa-tooth"></i>'}
         </div>
-        <span class="entity-label">${c.Name}</span>
+        <span class="entity-label">${escapeHTML(c.Name)}</span>
       </div>
     </div>
   `).join('');
@@ -225,9 +261,9 @@ function renderAllCompaniesPage() {
   container.innerHTML = loadedManufacturersData.map(m => `
     <div class="entity-card" onclick="handleCompanyClick(${m.Id})">
       <div class="entity-icon">
-        ${m.LogoUrl ? `<img src="${m.LogoUrl}" alt="${m.Name}" style="max-width:80%;max-height:80%;object-fit:contain;">` : '<i class="fa-solid fa-briefcase-medical"></i>'}
+        ${m.LogoUrl ? `<img src="${escapeHTML(m.LogoUrl)}" alt="${escapeHTML(m.Name)}" style="max-width:80%;max-height:80%;object-fit:contain;">` : '<i class="fa-solid fa-briefcase-medical"></i>'}
       </div>
-      <span class="entity-label">${m.Name}</span>
+      <span class="entity-label">${escapeHTML(m.Name)}</span>
     </div>
   `).join('');
 }
@@ -238,16 +274,24 @@ function renderAllCategoriesPage() {
   container.innerHTML = loadedCategoriesData.map(c => `
     <div class="entity-card" onclick="handleCategoryClick(${c.Id})">
       <div class="entity-icon">
-        ${c.ImageUrl ? `<img src="${c.ImageUrl}" alt="${c.Name}" style="max-width:80%;max-height:80%;object-fit:contain;">` : '<i class="fa-solid fa-tooth"></i>'}
+        ${c.ImageUrl ? `<img src="${escapeHTML(c.ImageUrl)}" alt="${escapeHTML(c.Name)}" style="max-width:80%;max-height:80%;object-fit:contain;">` : '<i class="fa-solid fa-tooth"></i>'}
       </div>
-      <span class="entity-label">${c.Name}</span>
+      <span class="entity-label">${escapeHTML(c.Name)}</span>
     </div>
   `).join('');
 }
 
+// معرّف إلغاء لطلبات البحث لمنع Race Conditions
+let activeFetchController = null;
+
 async function fetchProductsFromAPI() {
+  if (activeFetchController) {
+    activeFetchController.abort();
+  }
+  activeFetchController = new AbortController();
+
   if (currentView === 'new-arrivals') {
-    return (await apiGet('/api/Products/new-arrivals?page=1&pageSize=40')) || [];
+    return (await apiGet('/Products/new-arrivals?page=1&pageSize=40')) || [];
   }
 
   const params = new URLSearchParams();
@@ -255,12 +299,12 @@ async function fetchProductsFromAPI() {
   if (filterState.company)  params.append('manId', filterState.company);
   if (filterState.searchQuery) params.append('searchTerm', filterState.searchQuery);
   params.append('page', '1');
-  params.append('pageSize', '40');
+  params.append('pageSize', '50');
 
-  const products = (await apiGet(`/api/Products?${params.toString()}`)) || [];
+  const products = (await apiGet(`/Products?${params.toString()}`)) || [];
 
   if (filterState.onlyOffers) {
-    const offers = (await apiGet('/api/Offers')) || [];
+    const offers = (await apiGet('/Offers')) || [];
     const activeOfferProductIds = new Set(offers.filter(o => o.IsActive).map(o => o.ProductId));
     return products.filter(p => activeOfferProductIds.has(p.Id));
   }
@@ -291,7 +335,8 @@ function switchView(viewName) {
   if (searchBar) searchBar.style.display = 'block';
 
   if (viewName === 'home') {
-    document.getElementById('navHomeBtn').classList.add('active');
+    const homeBtn = document.getElementById('navHomeBtn');
+    if (homeBtn) homeBtn.classList.add('active');
     if (homeSections) homeSections.style.display = 'block';
     
     filterState.onlyOffers = false;
@@ -311,7 +356,8 @@ function switchView(viewName) {
     }, 50);
 
   } else if (viewName === 'offers') {
-    document.getElementById('navOffersBtn').classList.add('active');
+    const offersBtn = document.getElementById('navOffersBtn');
+    if (offersBtn) offersBtn.classList.add('active');
     if (catalogSection) catalogSection.style.display = 'block';
     
     filterState.onlyOffers = true;
@@ -322,7 +368,8 @@ function switchView(viewName) {
     renderProducts();
 
   } else if (viewName === 'new-arrivals') {
-    document.getElementById('navNewBtn').classList.add('active');
+    const newBtn = document.getElementById('navNewBtn');
+    if (newBtn) newBtn.classList.add('active');
     if (catalogSection) catalogSection.style.display = 'block';
     
     filterState.onlyNew = true;
@@ -338,7 +385,8 @@ function switchView(viewName) {
     renderProducts();
 
   } else if (viewName === 'cart') {
-    document.getElementById('navCartBtn').classList.add('active');
+    const cartBtn = document.getElementById('navCartBtn');
+    if (cartBtn) cartBtn.classList.add('active');
     if (searchBar) searchBar.style.display = 'none';
     if (cartPageSection) cartPageSection.style.display = 'block';
     renderCartPage();
@@ -383,17 +431,27 @@ function setupAllSwipers() {
   if (swiperCompaniesInstance) swiperCompaniesInstance.destroy(true, true);
   if (swiperCategoriesInstance) swiperCategoriesInstance.destroy(true, true);
 
-  swiperHeroInstance = new Swiper('.swiper-hero', {
-    loop: true,
-    speed: 600,
-    observer: true,
-    observeParents: true,
-    autoplay: { delay: 4500, disableOnInteraction: false, pauseOnMouseEnter: true },
-    pagination: { el: '.hero-pagination', clickable: true }
-  });
+  const heroEl = document.querySelector('.swiper-hero');
+  if (heroEl) {
+    swiperHeroInstance = new Swiper(heroEl, {
+      loop: true,
+      speed: 600,
+      observer: true,
+      observeParents: true,
+      autoplay: { delay: 4500, disableOnInteraction: false, pauseOnMouseEnter: true },
+      pagination: { el: '.hero-pagination', clickable: true }
+    });
+  }
 
-  swiperCompaniesInstance = new Swiper('.swiper-companies', manualSwiperOptions);
-  swiperCategoriesInstance = new Swiper('.swiper-categories', manualSwiperOptions);
+  const compEl = document.querySelector('.swiper-companies');
+  if (compEl) {
+    swiperCompaniesInstance = new Swiper(compEl, manualSwiperOptions);
+  }
+
+  const catEl = document.querySelector('.swiper-categories');
+  if (catEl) {
+    swiperCategoriesInstance = new Swiper(catEl, manualSwiperOptions);
+  }
 }
 
 /* =========================================================================
@@ -401,13 +459,13 @@ function setupAllSwipers() {
    ========================================================================= */
 function updateEntitySelectedUI() {
   document.querySelectorAll('[data-company-id]').forEach(el => {
-    const id = parseInt(el.getAttribute('data-company-id'));
+    const id = parseInt(el.getAttribute('data-company-id'), 10);
     if (filterState.company === id) el.classList.add('selected');
     else el.classList.remove('selected');
   });
 
   document.querySelectorAll('[data-category-id]').forEach(el => {
-    const id = parseInt(el.getAttribute('data-category-id'));
+    const id = parseInt(el.getAttribute('data-category-id'), 10);
     if (filterState.category === id) el.classList.add('selected');
     else el.classList.remove('selected');
   });
@@ -430,17 +488,17 @@ function renderFilterStatusBar() {
 
   if (filterState.company) {
     const brandObj = loadedManufacturersData.find(b => b.Id === filterState.company);
-    chipsHTML += `<span class="chip">${brandObj ? brandObj.Name : filterState.company} <i class="fa-solid fa-xmark" onclick="removeCompanyFilter()"></i></span>`;
+    chipsHTML += `<span class="chip">${escapeHTML(brandObj ? brandObj.Name : filterState.company)} <i class="fa-solid fa-xmark" onclick="removeCompanyFilter()"></i></span>`;
   }
 
   if (filterState.category) {
     const catObj = loadedCategoriesData.find(c => c.Id === filterState.category);
     const catLabel = catObj ? catObj.Name : filterState.category;
-    chipsHTML += `<span class="chip">${catLabel} <i class="fa-solid fa-xmark" onclick="removeCategoryFilter()"></i></span>`;
+    chipsHTML += `<span class="chip">${escapeHTML(catLabel)} <i class="fa-solid fa-xmark" onclick="removeCategoryFilter()"></i></span>`;
   }
 
   if (filterState.searchQuery) {
-    chipsHTML += `<span class="chip">بحث: "${filterState.searchQuery}" <i class="fa-solid fa-xmark" onclick="clearSearch()"></i></span>`;
+    chipsHTML += `<span class="chip">بحث: "${escapeHTML(filterState.searchQuery)}" <i class="fa-solid fa-xmark" onclick="clearSearch()"></i></span>`;
   }
 
   chipsContainer.innerHTML = chipsHTML;
@@ -472,11 +530,14 @@ async function renderProducts() {
     return;
   }
 
+  // تحديث خريطة المنتجات للوصول الآمن عند الإضافة
+  loadedProductsMap.clear();
+  products.forEach(p => loadedProductsMap.set(p.Id, p));
+
   container.innerHTML = products.map(p => {
     const variant = (p.Variants && p.Variants.length > 0) ? p.Variants[0] : null;
     const companyName = variant?.ManufacturerName || p.CategoryName || 'SMG';
     const productCode = variant?.ProductNumber || `SMG-${p.Id}`;
-    const variantId = variant ? variant.Id : null;
 
     let badgeHTML = '';
     if (currentView === 'offers' || filterState.onlyOffers) {
@@ -485,19 +546,16 @@ async function renderProducts() {
       badgeHTML = `<span class="product-badge badge-new"><i class="fa-solid fa-wand-magic-sparkles"></i> مضاف حديثاً</span>`;
     }
 
-    const safeName = (p.Name || '').replace(/'/g, "\\'");
-    const safeCompany = companyName.replace(/'/g, "\\'");
-
     return `
       <div class="product-card" id="card-${p.Id}">
         <div>
           <div class="product-head">
-            <span class="product-company"><i class="fa-solid fa-tooth"></i> ${companyName}</span>
+            <span class="product-company"><i class="fa-solid fa-tooth"></i> ${escapeHTML(companyName)}</span>
             ${badgeHTML}
           </div>
           <div class="product-info">
-            <h4>${p.Name}</h4>
-            <span class="product-code">${translations[currentLang].codeText} ${productCode}</span>
+            <h4>${escapeHTML(p.Name)}</h4>
+            <span class="product-code">${translations[currentLang].codeText} ${escapeHTML(productCode)}</span>
           </div>
         </div>
         <div class="product-action-row">
@@ -506,7 +564,7 @@ async function renderProducts() {
             <span class="qty-count" id="qty-${p.Id}">1</span>
             <button type="button" class="qty-btn" onclick="updateCardQty(${p.Id}, -1)">-</button>
           </div>
-          <button type="button" class="btn-add-cart" onclick="addProductToCart(${p.Id}, '${safeName}', '${safeCompany}', '${productCode}', ${variantId})">
+          <button type="button" class="btn-add-cart" onclick="addProductToCartById(${p.Id})">
             <i class="fa-solid fa-cart-plus"></i>
             <span>${translations[currentLang].addToCart}</span>
           </button>
@@ -522,29 +580,53 @@ async function renderProducts() {
 window.updateCardQty = function(productId, delta) {
   const el = document.getElementById(`qty-${productId}`);
   if (!el) return;
-  let val = parseInt(el.textContent) || 1;
+  let val = parseInt(el.textContent, 10) || 1;
   val = Math.max(1, val + delta);
   el.textContent = val;
 };
 
-window.addProductToCart = function(productId, name, company, code, variantId) {
-  const qtyEl = document.getElementById(`qty-${productId}`);
-  const quantityToAdd = qtyEl ? parseInt(qtyEl.textContent) || 1 : 1;
+// إضافة آمنة تعتمد على بيانات الكائن المخزنة برمجياً
+window.addProductToCartById = function(productId) {
+  const product = loadedProductsMap.get(productId);
+  if (!product) return;
 
-  const existingIndex = cart.findIndex(item => item.id === productId && item.variantId === variantId);
+  const variant = (product.Variants && product.Variants.length > 0) ? product.Variants[0] : null;
+  const variantId = variant ? variant.Id : null;
+  const companyName = variant?.ManufacturerName || product.CategoryName || 'SMG';
+  const productCode = variant?.ProductNumber || `SMG-${product.Id}`;
+
+  const qtyEl = document.getElementById(`qty-${productId}`);
+  const quantityToAdd = qtyEl ? (parseInt(qtyEl.textContent, 10) || 1) : 1;
+
+  // مفتاح فريد لتمييز العنصر داخل السلة بدقة
+  const cartKey = `${productId}_${variantId || 0}`;
+
+  const existingIndex = cart.findIndex(item => item.cartKey === cartKey);
   if (existingIndex > -1) {
     cart[existingIndex].qty += quantityToAdd;
   } else {
-    cart.push({ id: productId, variantId: variantId, name: name, code: code, company: company, qty: quantityToAdd });
+    cart.push({
+      cartKey: cartKey,
+      id: productId,
+      variantId: variantId,
+      name: product.Name,
+      code: productCode,
+      company: companyName,
+      qty: quantityToAdd
+    });
   }
 
   saveCart();
-  showToastNotice(`تمت إضافة (${quantityToAdd}) من ${name} إلى السلة`);
+  showToastNotice(`تمت إضافة (${quantityToAdd}) من ${product.Name} إلى السلة`);
   if (qtyEl) qtyEl.textContent = '1';
 };
 
 function saveCart() {
-  localStorage.setItem('smg_b2b_cart', JSON.stringify(cart));
+  try {
+    localStorage.setItem('smg_b2b_cart', JSON.stringify(cart));
+  } catch (e) {
+    console.error('Failed to save cart to localStorage:', e);
+  }
   updateCartBadge();
   if (currentView === 'cart') renderCartPage();
 }
@@ -556,16 +638,16 @@ function updateCartBadge() {
   badge.textContent = totalCount;
 }
 
-window.changeCartItemQty = function(id, delta) {
-  const idx = cart.findIndex(i => i.id === id);
+window.changeCartItemQty = function(cartKey, delta) {
+  const idx = cart.findIndex(i => i.cartKey === cartKey);
   if (idx === -1) return;
   cart[idx].qty += delta;
   if (cart[idx].qty <= 0) cart.splice(idx, 1);
   saveCart();
 };
 
-window.removeCartItem = function(id) {
-  cart = cart.filter(i => i.id !== id);
+window.removeCartItem = function(cartKey) {
+  cart = cart.filter(i => i.cartKey !== cartKey);
   saveCart();
 };
 
@@ -597,16 +679,16 @@ function renderCartPage() {
         ${cart.map(item => `
           <div class="cart-page-item">
             <div class="cart-item-details">
-              <strong>${item.name}</strong>
-              <span>${item.company} | ${item.code}</span>
+              <strong>${escapeHTML(item.name)}</strong>
+              <span>${escapeHTML(item.company)} | ${escapeHTML(item.code)}</span>
             </div>
             <div class="cart-item-interactive">
               <div class="qty-control">
-                <button class="qty-btn" onclick="changeCartItemQty(${item.id}, 1)">+</button>
+                <button class="qty-btn" onclick="changeCartItemQty('${item.cartKey}', 1)">+</button>
                 <span class="qty-count">${item.qty}</span>
-                <button class="qty-btn" onclick="changeCartItemQty(${item.id}, -1)">-</button>
+                <button class="qty-btn" onclick="changeCartItemQty('${item.cartKey}', -1)">-</button>
               </div>
-              <button class="btn-remove-cart" onclick="removeCartItem(${item.id})" title="حذف">
+              <button class="btn-remove-cart" onclick="removeCartItem('${item.cartKey}')" title="حذف">
                 <i class="fa-solid fa-trash-can"></i>
               </button>
             </div>
@@ -633,7 +715,7 @@ function renderCartPage() {
   `;
 }
 
-// دالة إرسال الطلب وحفظه في لوحة التحكم
+// دالة إرسال الطلب وحفظه مع تجنب حظر النوافذ المنبثقة
 window.sendOrderViaWhatsApp = async function() {
   if (cart.length === 0) {
     alert(translations[currentLang].emptyCart);
@@ -641,9 +723,11 @@ window.sendOrderViaWhatsApp = async function() {
   }
 
   const btn = document.querySelector('.btn-send-whatsapp-order');
-  const originalBtnHTML = btn.innerHTML;
-  btn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin" style="font-size: 20px;"></i> <span>جاري تسجيل الطلب...</span>`;
-  btn.disabled = true;
+  const originalBtnHTML = btn ? btn.innerHTML : '';
+  if (btn) {
+    btn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin" style="font-size: 20px;"></i> <span>جاري تسجيل الطلب...</span>`;
+    btn.disabled = true;
+  }
 
   const orderPayload = {
     Items: cart.map(item => ({
@@ -654,8 +738,6 @@ window.sendOrderViaWhatsApp = async function() {
     })),
     Notes: "طلب مرسل من المنصة لتأكيد التسعيرة عبر الواتساب"
   };
-  
-  const isSuccess = await apiPost('/api/Orders/whatsapp', orderPayload);
 
   let msg = `*طلب تسعيرة وتوريد جديد من Smart Medical Group (SMG)* 🩺🦷\n\n`;
   msg += `قائمة المواد والتجهيزات المطلوبة:\n`;
@@ -671,18 +753,24 @@ window.sendOrderViaWhatsApp = async function() {
   msg += `--------------------------------\n`;
   msg += `يرجى تزويدنا بتأكيد التوفر والتسعيرة المعتمدة. شكراً لكم!`;
 
-  btn.innerHTML = originalBtnHTML;
-  btn.disabled = false;
-
   const encodedURL = `https://wa.me/${targetWhatsAppNumber}?text=${encodeURIComponent(msg)}`;
-  window.open(encodedURL, '_blank');
+
+  // مزامنة مع السيرفر
+  const isSuccess = await apiPost('/Orders/whatsapp', orderPayload);
+
+  if (btn) {
+    btn.innerHTML = originalBtnHTML;
+    btn.disabled = false;
+  }
+
+  // التوجيه للواتساب بدون التعرض للحجب
+  window.location.href = encodedURL;
 
   if (isSuccess) {
     cart = [];
     saveCart();
-    showToastNotice(currentLang === 'ar' ? "تم تسجيل طلبك بنجاح وتحويلك للواتساب" : "Order submitted successfully!");
   } else {
-    showToastNotice(currentLang === 'ar' ? "تم تحويلك للواتساب، لكن حدث خطأ في المزامنة الداخلية." : "Redirected to WhatsApp, but internal sync failed.");
+    showToastNotice(currentLang === 'ar' ? "حدث خطأ في المزامنة الداخلية، جاري نقلك للواتساب..." : "Internal sync failed, redirecting to WhatsApp...");
   }
 };
 
@@ -772,10 +860,15 @@ document.addEventListener('DOMContentLoaded', async () => {
     };
   }
 
-  document.getElementById('navHomeBtn').onclick = () => switchView('home');
-  document.getElementById('navOffersBtn').onclick = () => switchView('offers');
-  document.getElementById('navNewBtn').onclick = () => switchView('new-arrivals');
-  document.getElementById('navCartBtn').onclick = () => switchView('cart');
+  const navHomeBtn = document.getElementById('navHomeBtn');
+  const navOffersBtn = document.getElementById('navOffersBtn');
+  const navNewBtn = document.getElementById('navNewBtn');
+  const navCartBtn = document.getElementById('navCartBtn');
+
+  if (navHomeBtn) navHomeBtn.onclick = () => switchView('home');
+  if (navOffersBtn) navOffersBtn.onclick = () => switchView('offers');
+  if (navNewBtn) navNewBtn.onclick = () => switchView('new-arrivals');
+  if (navCartBtn) navCartBtn.onclick = () => switchView('cart');
   if (brandLogo) brandLogo.onclick = () => switchView('home');
 
   let searchTimeout;
@@ -783,11 +876,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     searchInput.oninput = (e) => {
       clearTimeout(searchTimeout);
       searchTimeout = setTimeout(() => {
-        filterState.searchQuery = e.target.value;
-        if (filterState.searchQuery.trim() !== '') {
+        filterState.searchQuery = e.target.value.trim();
+        if (filterState.searchQuery !== '') {
           switchView('filtered');
         } else if (!filterState.company && !filterState.category && !filterState.onlyOffers && !filterState.onlyNew) {
           switchView('home');
+        } else {
+          renderProducts();
         }
       }, 350);
     };
@@ -815,11 +910,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         mainTitleEl.textContent = translations[currentLang].productsOffersTitle;
       } else if (currentView === 'new-arrivals' && mainTitleEl) {
         mainTitleEl.textContent = translations[currentLang].productsNewTitle;
-      } else if (currentView === 'all-companies' || currentView === 'all-categories') {
-        document.querySelector('[data-i18n="allCompaniesTitle"]').textContent = translations[currentLang].allCompaniesTitle;
-        document.querySelector('[data-i18n="allCategoriesTitle"]').textContent = translations[currentLang].allCategoriesTitle;
-      } else if (mainTitleEl) {
-        mainTitleEl.textContent = translations[currentLang].productsCatalogTitle;
+      } else {
+        const compTitle = document.querySelector('[data-i18n="allCompaniesTitle"]');
+        const catTitle = document.querySelector('[data-i18n="allCategoriesTitle"]');
+        if (compTitle) compTitle.textContent = translations[currentLang].allCompaniesTitle;
+        if (catTitle) catTitle.textContent = translations[currentLang].allCategoriesTitle;
+        if (mainTitleEl) mainTitleEl.textContent = translations[currentLang].productsCatalogTitle;
       }
 
       if (currentView === 'cart') renderCartPage();
