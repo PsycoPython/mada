@@ -489,30 +489,28 @@ async function renderProducts() {
     const safeCompany = companyName.replace(/'/g, "\\'");
 
     return `
-      <div class="product-card" id="card-${p.Id}">
-        <div>
-          <div class="product-head">
-            <span class="product-company"><i class="fa-solid fa-tooth"></i> ${companyName}</span>
-            ${badgeHTML}
-          </div>
-          <div class="product-info">
-            <h4>${p.Name}</h4>
-            <span class="product-code">${translations[currentLang].codeText} ${productCode}</span>
-          </div>
-        </div>
-        <div class="product-action-row">
-          <div class="qty-control">
-            <button type="button" class="qty-btn" onclick="updateCardQty(${p.Id}, 1)">+</button>
-            <span class="qty-count" id="qty-${p.Id}">1</span>
-            <button type="button" class="qty-btn" onclick="updateCardQty(${p.Id}, -1)">-</button>
-          </div>
-          <button type="button" class="btn-add-cart" onclick="addProductToCart(${p.Id}, '${safeName}', '${safeCompany}', '${productCode}', ${variantId})">
-            <i class="fa-solid fa-cart-plus"></i>
-            <span>${translations[currentLang].addToCart}</span>
-          </button>
-        </div>
-      </div>
-    `;
+      <div class="product-card" id="card-${p.Id}">
+        <div class="product-head">
+          <span class="product-company"><i class="fa-solid fa-tooth"></i> ${companyName}</span>
+          ${badgeHTML}
+        </div>
+        <div class="product-info">
+          <h4>${p.Name}</h4>
+          <span class="product-code">${translations[currentLang].codeText} ${productCode}</span>
+        </div>
+        <div class="product-action-row">
+          <div class="qty-control">
+            <button type="button" class="qty-btn" onclick="updateCardQty(${p.Id}, 1)">+</button>
+            <span class="qty-count" id="qty-${p.Id}">1</span>
+            <button type="button" class="qty-btn" onclick="updateCardQty(${p.Id}, -1)">-</button>
+          </div>
+          <button type="button" class="btn-add-cart" onclick="addProductToCart(${p.Id}, '${safeName}', '${safeCompany}', '${productCode}', ${variantId})">
+            <i class="fa-solid fa-cart-plus"></i>
+            <span>${translations[currentLang].addToCart}</span>
+          </button>
+        </div>
+      </div>
+    `;
   }).join('');
 }
 
