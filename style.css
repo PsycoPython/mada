@@ -1058,52 +1058,73 @@ body.dark-mode .btn-add-cart {
    ========================================================================= */
 
 /* جعل الحاوية ترتب الكروت بجانب بعضها بحجمها الطبيعي بدون أي تمدد */
+/* =========================================================================
+   الحل النهائي لضبط حجم وشكل كروت المنتجات (Compact Cards Grid)
+   ========================================================================= */
+
 #productsGridContainer,
 .products-grid {
-  display: flex !important;
-  flex-wrap: wrap !important;
+  display: grid !important;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 280px)) !important;
+  grid-auto-rows: max-content !important;
+  align-items: start !important;
+  align-content: start !important;
+  justify-content: start !important;
   gap: 16px !important;
-  justify-content: flex-start !important;
-  align-items: flex-start !important;
   margin-bottom: 40px !important;
   width: 100% !important;
 }
 
-/* ضبط حجم الكرت ليكون ملموماً وأنيقاً بارتفاع محدد ومناسب */
 .product-card {
-  width: 270px !important;
-  max-width: 270px !important;
-  height: auto !important;
+  width: 100% !important;
+  max-width: 280px !important;
+  height: fit-content !important;
   min-height: unset !important;
   max-height: fit-content !important;
+  align-self: start !important;
   background: var(--surface-card) !important;
   border: 1px solid var(--border-subtle) !important;
   border-radius: 14px !important;
   padding: 14px 16px !important;
-  box-shadow: 0 4px 14px rgba(13, 130, 125, 0.06) !important;
+  box-shadow: 0 4px 12px rgba(13, 130, 125, 0.05) !important;
   box-sizing: border-box !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: flex-start !important;
+  gap: 12px !important;
   margin: 0 !important;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease !important;
 }
 
-/* تنسيق رأس الكرت (الشركة والشارات) */
+.product-card:hover {
+  transform: translateY(-3px) !important;
+  border-color: var(--primary) !important;
+  box-shadow: 0 8px 20px rgba(13, 130, 125, 0.12) !important;
+}
+
 .product-head {
   display: flex !important;
   justify-content: space-between !important;
   align-items: center !important;
-  margin-bottom: 10px !important;
+  width: 100% !important;
+  gap: 6px !important;
+  margin: 0 !important;
 }
 
-/* تنسيق عنوان المنتج والكود تحت الرأس مباشرة دون أي فراغ أبيض */
 .product-info {
-  margin-bottom: 14px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: flex-start !important;
+  gap: 4px !important;
+  margin: 0 !important;
 }
 
 .product-info h4 {
   font-size: 15px !important;
   font-weight: 800 !important;
   color: var(--text-main) !important;
-  margin-bottom: 4px !important;
   line-height: 1.35 !important;
+  margin: 0 !important;
 }
 
 .product-code {
@@ -1115,33 +1136,75 @@ body.dark-mode .btn-add-cart {
   display: inline-block !important;
 }
 
-/* صف أزرار الشراء ملتصق بأسفل المحتوى مباشرة */
+body.dark-mode .product-code {
+  background: rgba(255, 255, 255, 0.06) !important;
+}
+
 .product-action-row {
   display: flex !important;
   align-items: center !important;
   gap: 8px !important;
   padding-top: 10px !important;
   border-top: 1px solid var(--border-subtle) !important;
+  margin-top: 4px !important;
+  width: 100% !important;
 }
 
 .qty-control {
-  height: 34px !important;
+  display: flex !important;
+  align-items: center !important;
+  background: var(--surface-icon) !important;
   border-radius: 8px !important;
+  overflow: hidden !important;
+  height: 34px !important;
+  flex-shrink: 0 !important;
 }
 
 .qty-btn {
+  background: transparent !important;
+  border: none !important;
   width: 28px !important;
+  height: 100% !important;
   font-size: 15px !important;
+  font-weight: 800 !important;
+  color: var(--primary) !important;
+  cursor: pointer !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.qty-btn:hover {
+  background: rgba(13, 130, 125, 0.15) !important;
 }
 
 .qty-count {
   width: 24px !important;
+  text-align: center !important;
   font-size: 13px !important;
+  font-weight: 800 !important;
+  color: var(--text-main) !important;
 }
 
 .btn-add-cart {
+  flex: 1 !important;
+  background: var(--primary) !important;
+  color: #ffffff !important;
+  border: none !important;
   height: 34px !important;
-  font-size: 12.5px !important;
   border-radius: 8px !important;
-  padding: 0 10px !important;
+  font-size: 12.5px !important;
+  font-weight: 700 !important;
+  cursor: pointer !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 6px !important;
+  white-space: nowrap !important;
+  transition: all 0.2s ease !important;
+}
+
+.btn-add-cart:hover {
+  background: var(--primary-dark) !important;
+  transform: translateY(-1px) !important;
 }
