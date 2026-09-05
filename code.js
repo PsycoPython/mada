@@ -1,7 +1,7 @@
 /* =========================================================================
    1. إعدادات الخادم والـ API (وفقاً لمواصفات Swagger MadaProject v1.0)
    ========================================================================= */
-const API_BASE_URL = "https://smg.runasp.net/api"; 
+const API_BASE_URL = "http://smg.runasp.net/api"; 
 let targetWhatsAppNumber = "963985083231";
 
 function formatEndpoint(endpoint) {
